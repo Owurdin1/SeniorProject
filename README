@@ -1,8 +1,0 @@
-This is a place for me to dump code for my senior project
-
-
-It is wrote for an arduino micro controller.
-
-I will be interfacing with sensors and using data gathered from
-those sensors to send a wifi siginal to an AR.Drone air craft
-to fly itself.
