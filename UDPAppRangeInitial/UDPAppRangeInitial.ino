@@ -109,10 +109,22 @@ void hoverSequence()
                  initialState();
          }
          
+         // Print for hover states, testing purposes
          Serial.print("hoverCounter = ");
          Serial.print (hoverCounter);
          Serial.print("  droneState = ");
          Serial.println(droneState);
+         
+         // Range finders funciton
+         rangeClass.GetRanges();
+         
+         // Range finder print Statments
+         Serial.print("Left Sensor: ");
+         Serial.print(rangeClass.sensors[0]);
+         Serial.print(" Right Sensor: ");
+         Serial.print(rangeClass.sensors[1]);
+         Serial.print(" Vertical Sensor: ");
+         Serial.println(rangeClass.sensors[2]);
          
          switch(hoverCounter)
          {
@@ -201,6 +213,7 @@ void setup()
         Serial.println("");
         Serial.println("");
         Serial.println("Initialize Cconnection");
+        
 	WiFi.init();
         Serial.println("Initialized");
         
@@ -216,5 +229,4 @@ void loop()
 	WiFi.run();
 
         hoverSequence();
-        rangeClass.GetRanges();
 }

@@ -30,7 +30,19 @@ void MultiAnalogRange::GetRanges()
       sensors[1] = analogRead(rangePinRight);
       sensors[2] = analogRead(rangePinVertical);
       
+      /*
+      // Test print calls
+      Serial.print("RangeFinder Class SENSORS: ");
+      Serial.print("Left sensor: ");
+      Serial.print(sensors[0]);
+      Serial.print(" Right sensor: ");
+      Serial.print(sensors[1]);
+      Serial.print(" Vertical sensor: ");
+      Serial.println(sensors[2]);
+      */
+      
       // Call ConvertRangeValues to convert the analog
       // input values to inches for use in project
       ConvertRangeValues();
+      
 }
