@@ -225,66 +225,10 @@ void flightSequence()
 				break;
 		}
 	}
-
-			/*
-				// if verticalTrigger is triggered then
-				// change drone state to landing for initial testing
-				// otherwise wait 10 seconds and start drone for take off
-				// and hovering procedures
-				if ((rangeClass.sensors[2] > rangeStop))
-				{
-					if (rangeClass.sensors[0] < rangeStop && rangeClass.sensors[1] < rangeStop)
-					{
-						if (millis() - time > 10000)
-						{
-
-							time = millis();
-
-							if ((rangeClass.sensors[1] < rangeStop) && (rangeClass.sensors[0] < rangeStop))
-							{
-								forwardTrigger = 1;
-							}
-							else
-							{
-								forwardTrigger = 0;
-							}
-
-							if (verticalTrigger == 0 && droneState == 0 && forwardTrigger == 0)
-							{
-								droneState = 1;
-							}
-							else if (droneState == 1 && verticalTrigger == 0 & forwardTrigger == 0)
-							{
-								droneState = 2;
-							}
-						}
-					}
-					else
-					{
-						forwardTrigger = 1;
-						droneState = 0;
-					}
-				}
-				else
-				{
-					verticalTrigger = 1;
-					droneState = 0;
-				}
-
-
-				switch(droneState)
-				{
-					case 0:
-						landingState();
-						break;
-					case 1:
-						takeOffState();
-						break;
-					case 2:
-						hoverState();
-						break;
-				}
-			*/
+	else
+	{
+		
+	}
 }
 
 void setup()
