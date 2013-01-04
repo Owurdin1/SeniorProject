@@ -96,39 +96,7 @@ void turnState()
 {
 	//Serial.println("turnState, turning and incrementing turn counter");
 	droneState = 3;
-
-	if (turnCounter < 5)
-	{
-		turnCounter++;
-	        sprintf(data,"AT*PCMD=%d,0,0,0,0,turnSpeed\r",seq++);
-	}
-	else
-	{
-		turnCounter = 0;
-
-		if (rangeClass.sensors[2] > 50)
-		{
-			time = millis();
-			verticalSpeed = 1;
-			verticalUpState();
-
-			while (millis() - time < 2)
-			{
-				keepConnection();
-			}
-		}
-		else
-		{
-			time = millis();
-			verticalSpeed = -0.5;
-			verticalDownState();
-
-			while (millis() - time < 1)
-			{
-				keepConnection();
-			}
-		}
-	}
+        sprintf(data,"AT*PCMD=%d,0,0,0,0,turnSpeed\r",seq++);
 }
 
 void hoverState()
@@ -192,25 +160,6 @@ void keepConnection()
 	}
 }
 
-void vertTurnCheck()
-{
-	if (rangeClass.sensors[2] < rangeStop)
-	{
-		verticalTrigger = 1;
-		verticalSpeed = 1;
-		verticalUpState();
-	}
-	else if (rangeClass.sensors[1] < rangeStop || rangeClass.sensors[0] < rangeStop)
-	{
-		forwardTrigger = 1;
-	}
-	else
-	{
-		verticalTrigger = 0;
-		forwardTrigger = 0;
-	}
-}
-
 void printTestValues()
 {
 	Serial.print("DroneState = ");
@@ -227,57 +176,6 @@ void printTestValues()
 void stateChooser()
 {
 	
-	// If verticalTrigger or forwardTrigger is on then change
-	// drone state to hover and transition to turnState or
-	// verticalUpState/verticalDownState and continue to
-	// forwardState when possible
-	if ((rangeClass.sensors[0] > rangeStop) && (rangeClass.sensors[1] > rangeStop) && (rangeClass.sensors[2] > rangeStop))
-	{
-		forwardTrigger = 0;
-		verticalTrigger = 0;
-
-		switch(droneState)
-		{
-			case 0:
-				landingState();
-				droneState = 1;
-				delay(4000);
-				break;
-			case 1:
-				takeOffState();
-				droneState = 2;
-				delay(4000);
-				break;
-			case 2:
-				hoverState();
-				droneState = 4;
-				delay(4000);
-				break;
-			case 3:
-				//turnState();
-				droneState = 4;
-				break;
-			case 4:
-				forwardState();
-				droneState = 4;
-				break;
-			case 5:
-				//verticalUpState();
-				droneState = 4;
-				break;
-			case 6:
-				//verticalDownState();
-				droneState = 4;
-				break;
-			default:
-				landingState();
-				break;
-		}
-	}
-	else
-	{
-		vertTurnCheck();
-	}
 }
 
 void flightSequence()
@@ -293,7 +191,44 @@ void flightSequence()
 	// Print debug values
 	printTestValues();
 
-	stateChooser();
+	// If verticalTrigger or forwardTrigger is on then change
+	// drone state to hover and transition to turnState or
+	// verticalUpState/verticalDownState and continue to
+	// forwardState when possible
+	if ((rangeClass.sensors[0] > rangeStop) && (rangeClass.sensors[1] > rangeStop) && (rangeClass.sensors[2] > rangeStop))
+	{
+		switch(droneState)
+		{
+			case 0:
+				landingState();
+				break;
+			case 1:
+				takeOffState();
+				break;
+			case 2:
+				hoverState();
+				break;
+			case 3:
+				turnState();
+				break;
+			case 4:
+				forwardState();
+				break;
+			case 5:
+				verticalUpState();
+				break;
+			case 6:
+				verticalDownState();
+				break;
+			default:
+				landingState();
+				break;
+		}
+	}
+	else
+	{
+		
+	}
 }
 
 void setup()
