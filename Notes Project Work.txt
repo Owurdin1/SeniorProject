@@ -18,7 +18,10 @@
 //#define WIRELESS_MODE_INFRA	1
 #define WIRELESS_MODE_ADHOC	2
 
-// Wireless configuration parameters ----------------------------------------
+// Wireless configuration parameters 
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
+
 unsigned char local_ip[] = {192,168,1,4};	// IP address of WiShield
 unsigned char gateway_ip[] = {192,168,1,1};	// router or gateway IP address
 unsigned char subnet_mask[] = {255,255,255,0};	// subnet mask for the local network
@@ -45,9 +48,12 @@ unsigned char wireless_mode = WIRELESS_MODE_ADHOC;
 
 unsigned char ssid_len;
 unsigned char security_passphrase_len;
-//---------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 
 // Variables for drone states
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 char data[100];
 char yj_mac[17];
 int seq = 1;
@@ -57,32 +63,45 @@ unsigned long time;
 // 4 = forwardState, 5 = verticalUpState, 6 = verticalDownState
 int droneState = 0;
 
+// drone control variables
 int rangeStop = 15;
+int turnCounter = 0;
 int forwardSpeed = -0.3;
 int turnSpeed = -1;
-int turnCounter = 0;
-int verticalSpeed = 0; // vertical speed is set by calling function
+int downSpeed = -.5;
+int upSpeed = 1;
+int verticalUpTime = 2;
+int verticalDownTime = 1;
 
-// flightRange variables
-int verticalTrigger = 0;
-int forwardTrigger = 0;
-
-// Variables for range finders
+// Declaration of RangeFinder Class
 MultiAnalogRange rangeClass;
-int rangeTimer = 0;
 
+// Variables for range values
+unsigned long sensorTime;
+int rangeTimer = 0;
+int rangeCounter = 0;
+int leftRange = 0;
+int rightRange = 0;
+int verticalRange = 0;
+int leftSensor[3];
+int rightSensor[3];
+int verticalSensor[3];
+
+// State Functions
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 void verticalDownState()
 {
 	//Serial.println("verticalDownState, decreasing height");
 	droneState = 6;
-	sprintf(data,"AT*PCMD=%d,0,0,0,verticalSpeed,0\r",seq++);
+	sprintf(data,"AT*PCMD=%d,0,0,0,downSpeed,0\r",seq++);
 }
 
 void verticalUpState()
 {
 	//Serial.println("verticalState, increasing height");
 	droneState = 5;
-        sprintf(data,"AT*PCMD=%d,0,0,0,verticalSpeed,0\r",seq++);
+        sprintf(data,"AT*PCMD=%d,0,0,0,upSpeed,0\r",seq++);
 }
 
 void forwardState()
@@ -106,13 +125,13 @@ void turnState()
 	{
 		turnCounter = 0;
 
-		if (rangeClass.sensors[2] > 50)
+		//if (rangeClass.sensors[2] > 50)
+		if (verticalRange > 50)
 		{
 			time = millis();
-			verticalSpeed = 1;
 			verticalUpState();
 
-			while (millis() - time < 2)
+			while (millis() - time < verticalUpTime)
 			{
 				keepConnection();
 			}
@@ -120,10 +139,9 @@ void turnState()
 		else
 		{
 			time = millis();
-			verticalSpeed = -0.5;
 			verticalDownState();
 
-			while (millis() - time < 1)
+			while (millis() - time < verticalDownTime)
 			{
 				keepConnection();
 			}
@@ -156,10 +174,15 @@ void initialState()
 {
          //Serial.println("initialState keep on ground until given command to fly");
          time = millis();
-	 rangeTimer = time;
+	 sensorTime = millis();
          sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
 }
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 
+// State transition functions
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 void keepConnection()
 {
 	// 0 = landingState, 1 = takeOffState, 2 = hoverState, 3 = turnState,
@@ -194,34 +217,34 @@ void keepConnection()
 
 void vertTurnCheck()
 {
-	if (rangeClass.sensors[2] < rangeStop)
+	//if (rangeClass.sensors[2] < rangeStop)
+	if (verticalRange < rangeStop)
 	{
-		verticalTrigger = 1;
-		verticalSpeed = 1;
-		verticalUpState();
+		droneState = 6;
+
+		//while (rangeClass.sensors[2] < rangeStop)
+		while (verticalRange < rangeStop)
+		{
+			keepConnection();
+		}
 	}
-	else if (rangeClass.sensors[1] < rangeStop || rangeClass.sensors[0] < rangeStop)
+	//else if (rangeClass.sensors[1] < rangeStop || rangeClass.sensors[0] < rangeStop)
+	else if (leftRange < rangeStop || rightRange < rangeStop)
 	{
-		forwardTrigger = 1;
+		droneState = 3;
+
+		//while (rangeClass.sensors[1] < rangeStop || rangeClass.sensors[0] < rangeStop)
+		while (leftRange < rangeStop || rightRange < rangeStop)		
+		{
+			keepConnection();
+		}
+
+		turnCounter = 0;
 	}
 	else
 	{
-		verticalTrigger = 0;
-		forwardTrigger = 0;
+		droneState = 4;
 	}
-}
-
-void printTestValues()
-{
-	Serial.print("DroneState = ");
-	Serial.print(droneState);
-	Serial.print(", Left Range = ");
-	Serial.print(rangeClass.sensors[0]);
-	Serial.print(", Right Range = ");
-	Serial.print(rangeClass.sensors[1]);
-	Serial.print(", Vertical Range = ");
-	Serial.print(rangeClass.sensors[2]);
-	Serial.println(",");
 }
 
 void stateChooser()
@@ -231,11 +254,9 @@ void stateChooser()
 	// drone state to hover and transition to turnState or
 	// verticalUpState/verticalDownState and continue to
 	// forwardState when possible
-	if ((rangeClass.sensors[0] > rangeStop) && (rangeClass.sensors[1] > rangeStop) && (rangeClass.sensors[2] > rangeStop))
+	//if ((rangeClass.sensors[0] > rangeStop) && (rangeClass.sensors[1] > rangeStop) && (rangeClass.sensors[2] > rangeStop))
+	if (leftRange > rangeStop && rightRange > rangeStop && verticalRange > rangeStop)
 	{
-		forwardTrigger = 0;
-		verticalTrigger = 0;
-
 		switch(droneState)
 		{
 			case 0:
@@ -254,7 +275,6 @@ void stateChooser()
 				delay(4000);
 				break;
 			case 3:
-				//turnState();
 				droneState = 4;
 				break;
 			case 4:
@@ -262,11 +282,9 @@ void stateChooser()
 				droneState = 4;
 				break;
 			case 5:
-				//verticalUpState();
 				droneState = 4;
 				break;
 			case 6:
-				//verticalDownState();
 				droneState = 4;
 				break;
 			default:
@@ -279,7 +297,61 @@ void stateChooser()
 		vertTurnCheck();
 	}
 }
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 
+// Get Range Values functions
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
+void setSensors()
+{
+	int i;
+	int left = 0;
+	int right = 0;
+	int vertical = 0;
+
+	for (i = 0; i < 3; i++)
+	{
+		if (left < leftSensor[i])
+		{
+			left = leftSensor[i];
+		}
+		if (right < rightSensor[i])
+		{
+			right = rightSensor[i];
+		}
+		if (vertical < verticalSensor[i])
+		{
+			vertical = verticalSensor[i];
+		}
+	}
+
+	leftRange = left;
+	rightRange = right;
+	verticalRange = vertical;
+}
+
+void rangeCompare()
+{
+	if (rangeTimer < 3)
+	{
+		leftSensor[rangeTimer] = rangeClass.sensors[0];
+		rightSensor[rangeTimer] = rangeClass.sensors[1];
+		verticalSensor[rangeTimer] = rangeClass.sensors[2];
+		rangeTimer++;
+	}
+
+	if (rangeTimer == 3)
+	{
+		setSensors();
+	}
+}
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
+
+// Flight control logic
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 void flightSequence()
 {
 	if (time == 0)
@@ -287,15 +359,56 @@ void flightSequence()
 		initialState();
 	}
 
-	rangeClass.GetRanges();
-	rangeTimer = millis();
+	if (millis() - sensorTime > 100)
+	{
+		rangeClass.GetRanges();
+		rangeCompare();
 
-	// Print debug values
-	printTestValues();
+		// Print debug values
+		printTestValues();
+	}
 
-	stateChooser();
+	if (rangeTimer == 3)
+	{
+		stateChooser();
+		rangeTimer = 0;
+	}
 }
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 
+// Print statements for testing
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
+void printTestValues()
+{
+/*
+	Serial.print("DroneState , ");
+	Serial.print(droneState);
+	Serial.print(", Left Range , ");
+	Serial.print(rangeClass.sensors[0]);
+	Serial.print(", Right Range , ");
+	Serial.print(rangeClass.sensors[1]);
+	Serial.print(", Vertical Range , ");
+	Serial.print(rangeClass.sensors[2]);
+	Serial.println(",");
+*/
+	Serial.print("DroneState , ");
+	Serial.print(droneState);
+	Serial.print(", Left Range , ");
+	Serial.print(leftRange);
+	Serial.print(", Right Range , ");
+	Serial.print(rightRange);
+	Serial.print(", Vertical Range , ");
+	Serial.print(verticalRange);
+	Serial.println(",");
+}
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
+
+// Arduino required functions
+//-------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 void setup()
 {
         Serial.begin(9600);

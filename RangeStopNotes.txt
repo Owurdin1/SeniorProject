@@ -104,7 +104,7 @@ void initialState()
 
 void keepConnection()
 {
-          Serial.println("Keeping drone connection alive");
+          //Serial.println("Keeping drone connection alive");
           switch(droneState)
           {
 		case 0:
@@ -121,6 +121,8 @@ void keepConnection()
 
 void sensorCompare()
 {
+	//Serial.println("sensorCompare function");
+
 	int i;
 	int left = 0;
 	int right = 0;
@@ -145,10 +147,14 @@ void sensorCompare()
 	leftRange = left;
 	rightRange = right;
 	verticalRange = vertical;
+
+	// DebugPrintFunction
+	debugPrint();
 }
 
 void rangeCheck()
 {
+	//Serial.println("rangeCheck function");
 	if (rangeTimer < 3)
 	{
 		leftSensor[rangeTimer] = rangeClass.sensors[0];
@@ -156,10 +162,8 @@ void rangeCheck()
 		verticalSensor[rangeTimer] = rangeClass.sensors[2];
 		rangeTimer++;
 	}
-	else
-	{
-		rangeTimer = 0;
-	}
+
+	//Serial.println(rangeTimer);
 
 	if (rangeTimer == 3)
 	{
@@ -182,13 +186,13 @@ void flightSequence()
 	//rangeTimer
 
 	// Debug statements
-	Serial.print("DroneState = ");
+	Serial.print("DroneState ; ");
 	Serial.print(droneState);
-	Serial.print(", Left Range = ");
+	Serial.print(", Left Range ; ");
 	Serial.print(rangeClass.sensors[0]);
-	Serial.print(", Right Range = ");
+	Serial.print(", Right Range ; ");
 	Serial.print(rangeClass.sensors[1]);
-	Serial.print(", Vertical Range = ");
+	Serial.print(", Vertical Range ; ");
 	Serial.print(rangeClass.sensors[2]);
 	Serial.println(",");
 
@@ -357,6 +361,101 @@ void hoverSequence()
                          Serial.println(hoverCounter);
          }
 }
+//==============================
+
+void hoverPrint()
+{
+         if (time == 0)
+         {
+                 initialState();
+         }
+         
+	if (millis() - time > 100)
+	{
+		 // Range finders funciton
+		 rangeClass.GetRanges();
+		rangeCheck();
+		time = millis();
+
+		//if (rangeClass.sensors[2] < 10)
+		if (verticalRange < 10 && verticalRange != 0)
+		{
+			Serial.println("STOOOOPPPPPP!!!!");
+			landingState();
+			delay(30000);
+		}
+	}
+
+	/*
+	// Range finder print Statments
+	Serial.print("Left Sensor; ");
+	Serial.print(rangeClass.sensors[0]);
+	Serial.print("; Right Sensor; ");
+	Serial.print(rangeClass.sensors[1]);
+	Serial.print("; Vertical Sensor; ");
+	Serial.println(rangeClass.sensors[2]);
+	*/
+
+	if (rangeTimer >= 3)
+	{
+		rangeTimer = 0;
+
+		switch(droneState)
+		{
+			case 0:
+				if (millis() - time > 5000)
+				{
+					takeOffState();
+					time = millis();
+					hoverCounter++;
+				}
+				else
+				{
+					keepConnection();
+				}
+
+				break;
+			case 1:
+				if (millis() - time > 5000)
+				{
+					hoverState();
+					time = millis();
+					hoverCounter++;
+				}
+				else
+				{
+					keepConnection();
+				}
+
+				break;
+
+			default:
+				keepConnection();
+				break;
+			
+		}
+	}
+/*
+	if (rangeClass.sensors[2] < 10)
+	{
+		landingState();
+		Serial.println("STOOOOPPPPP!");
+		delay(30000);
+	}
+*/
+}
+
+void debugPrint()
+{
+
+	// Range finder print Statments
+	Serial.print("Left Sensor; ");
+	Serial.print(leftRange); //rangeClass.sensors[0]);
+	Serial.print("; Right Sensor; ");
+	Serial.print(rightRange); //rangeClass.sensors[1]);
+	Serial.print("; Vertical Sensor; ");
+	Serial.println(verticalRange); //rangeClass.sensors[2]);
+}
 
 void setup()
 {
@@ -381,7 +480,10 @@ void loop()
 	
 	// Function to run flight test using vertical range
 	// finder to stop sequence
-	flightSequence();
+	//flightSequence();
+
+	// Function to hover and print sensor readings
+	hoverPrint();
 
 	// Function to run initial test hover sequence
         //hoverSequence();
