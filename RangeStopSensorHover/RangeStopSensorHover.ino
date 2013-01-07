@@ -52,6 +52,7 @@ char data[100];
 char yj_mac[17];
 int seq = 1;
 unsigned long time;
+unsigned long flightTime;
 int droneState = 0;
 int rangeStop = 14;
 int leftSensor[3];
@@ -99,6 +100,7 @@ void initialState()
          //Serial.println("initialState keep on ground until given command to fly");
          time = millis();
 	 rangeTimer = time;
+	 flightTime = time;
          sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
 }
 
@@ -403,10 +405,10 @@ void hoverPrint()
 		switch(droneState)
 		{
 			case 0:
-				if (millis() - time > 5000)
+				if (millis() - flightTime > 5000)
 				{
 					takeOffState();
-					time = millis();
+					flightTime = millis();
 					hoverCounter++;
 				}
 				else
@@ -416,10 +418,10 @@ void hoverPrint()
 
 				break;
 			case 1:
-				if (millis() - time > 5000)
+				if (millis() - flightTime > 5000)
 				{
 					hoverState();
-					time = millis();
+					flightTime = millis();
 					hoverCounter++;
 				}
 				else
@@ -449,7 +451,11 @@ void debugPrint()
 {
 
 	// Range finder print Statments
-	Serial.print("Left Sensor; ");
+	Serial.print("RangeTimer; ");
+	Serial.print(rangeTimer);
+	Serial.print("; DroneState; ");
+	Serial.print(droneState);
+	Serial.print("; Left Sensor; ");
 	Serial.print(leftRange); //rangeClass.sensors[0]);
 	Serial.print("; Right Sensor; ");
 	Serial.print(rightRange); //rangeClass.sensors[1]);
