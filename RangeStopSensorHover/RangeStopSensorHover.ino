@@ -95,6 +95,14 @@ void landingState()
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,seq++);
 }
 
+void emergencyLandState()
+{
+        //Serial.println("landingState send land command");
+        droneState = 3;
+	sprintf(data,"AT*REF=%d,290717696\r", seq++);
+        //sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,seq++);
+}
+
 void initialState()
 {
          //Serial.println("initialState keep on ground until given command to fly");
@@ -117,6 +125,9 @@ void keepConnection()
 			break;
 		case 2:
 			hoverState();
+			break;
+		case 3:
+			emergencyLandState();
 			break;
           }
 }
@@ -383,8 +394,15 @@ void hoverPrint()
 		if (verticalRange < 10 && verticalRange != 0)
 		{
 			Serial.println("STOOOOPPPPPP!!!!");
-			landingState();
-			delay(30000);
+			emergencyLandState();
+			time = millis();
+			while (millis() - time < 30000)
+			{
+				keepConnection();
+				Serial.print("DroneState; ");
+				Serial.print(droneState);
+				Serial.println(";");
+			}
 		}
 	}
 
