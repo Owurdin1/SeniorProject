@@ -19,7 +19,7 @@
 
 // Define values for conversions in millivolts
 #define voltsPerInch 9.57
-#define voltsPerUnit 4.9
+#define voltsPerUnit 3.2 //4.9
 
 // Class for reading the range finders and setting a
 // public container for easy access
