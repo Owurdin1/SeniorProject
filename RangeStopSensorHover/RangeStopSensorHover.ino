@@ -74,6 +74,9 @@ int hoverCounter = 0;
 MultiAnalogRange rangeClass;
 int rangeTimer = 0;
 
+// Variables for Keep Connection
+unsigned long keepConn;
+
 void hoverState()
 {
         //Serial.println("hoverState, hovring with no directions");
@@ -99,37 +102,47 @@ void emergencyLandState()
 {
         //Serial.println("landingState send land command");
         droneState = 3;
-	sprintf(data,"AT*REF=%d,290717696\r", seq++);
-        //sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,seq++);
+	//sprintf(data,"AT*REF=%d,290717696\r", seq++);
+        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,seq++);
 }
 
 void initialState()
 {
          //Serial.println("initialState keep on ground until given command to fly");
+	 //Serial.println("sending flat trim command to drone to attempt to prevent flying into walls");
          time = millis();
 	 rangeTimer = time;
 	 flightTime = time;
+	 keepConn = time;
          sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
+	 sprintf(data, "AT*FTRIM=%d\r", seq++);
 }
 
 void keepConnection()
 {
-          //Serial.println("Keeping drone connection alive");
-          switch(droneState)
-          {
-		case 0:
-			landingState();
-			break;
-		case 1:
-			takeOffState();
-			break;
-		case 2:
-			hoverState();
-			break;
-		case 3:
-			emergencyLandState();
-			break;
-          }
+	if (millis() - keepConn > 300)
+	{
+		  keepConn = millis();
+
+		  Serial.print("Keeping drone connection alive, droneState = ");
+		  Serial.println(droneState);
+
+		  switch(droneState)
+		  {
+			case 0:
+				landingState();
+				break;
+			case 1:
+				takeOffState();
+				break;
+			case 2:
+				hoverState();
+				break;
+			case 3:
+				emergencyLandState();
+				break;
+		  }
+	}
 }
 
 void sensorCompare()
@@ -386,7 +399,7 @@ void hoverPrint()
 	if (millis() - time > 100)
 	{
 		 // Range finders funciton
-		 rangeClass.GetRanges();
+		rangeClass.GetRanges();
 		rangeCheck();
 		time = millis();
 
@@ -396,7 +409,7 @@ void hoverPrint()
 			Serial.println("STOOOOPPPPPP!!!!");
 			emergencyLandState();
 			time = millis();
-			while (millis() - time < 30000)
+			while (millis() - time < 3000)
 			{
 				keepConnection();
 				Serial.print("DroneState; ");
