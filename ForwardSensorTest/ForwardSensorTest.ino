@@ -55,7 +55,7 @@ int aeq = 1;	// Second sequence command counter
 unsigned long time;
 unsigned long flightTime;
 int droneState = 0;	// Drone state variable
-int rangeStop = 30;	// Range value to stop drone
+int rangeStop = 10;	// Range value to stop drone
 int leftSensor[3];	// Array containing 3 left sensor reads
 int rightSensor[3];	// Array containing 3 right sensor reads
 int verticalSensor[3];	// Array containing 3 vertical sensor reads
@@ -222,7 +222,7 @@ void forwardSensorTest()
 		time = millis();
 
 		//if (rangeClass.sensors[2] < 10)
-		if ((leftRange < rangeStop) && (leftRange != 0) && (rightRange < rangeStop) && (rightRange != 0))
+		if ((leftRange < rangeStop) && (leftRange != 0) || (rightRange < rangeStop) && (rightRange != 0))
 		{
 			Serial.println("Switch to hover!");
 			hoverState();
@@ -293,6 +293,7 @@ void forwardSensorTest()
 					}
 
 					landingState();
+					Serial.println("Flight done, stay on ground!");
 
 					while (1)
 					{
@@ -312,6 +313,7 @@ void forwardSensorTest()
 			
 		}
 	}
+	debugPrint();
 }
 
 void debugPrint()
