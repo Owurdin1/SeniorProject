@@ -51,7 +51,7 @@ unsigned char security_passphrase_len;
 char data[100];
 char yj_mac[17];
 int seq = 1;	// First sequence command counter
-int aeq = 1;	// Second sequence command counter
+  //int aeq = 1;	// Second sequence command counter
 unsigned long time;
 unsigned long flightTime;
 int droneState = 0;	// Drone state variable
@@ -85,21 +85,21 @@ void initialState()
 	 keepConn = time;
          sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
 	 sprintf(data, "AT*FTRIM=%d\r", seq++);
-	 aeq++;
+//aeq++;
 }
 
 void landingState()
 {
         //Serial.println("landingState send land command");
         droneState = 0;
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,aeq++); //seq++);
+        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,seq++);  //,aeq++); //seq++);
 }
 
 void takeOffState()
 {
         //Serial.println("takeOffState, tell drone to take off");
         droneState = 1;
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r",seq++,aeq++); //seq++);
+        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r",seq++,seq++);  //,aeq++); //seq++);
 }
 
 void hoverState()
@@ -107,7 +107,7 @@ void hoverState()
         //Serial.println("hoverState, hovring with no directions");
         droneState = 2;
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\r",seq++);
-	aeq++;
+//aeq++;
 }
 
 void emergencyLandState()
@@ -115,14 +115,14 @@ void emergencyLandState()
         //Serial.println("landingState send land command");
         droneState = 3;
 	//sprintf(data,"AT*REF=%d,290717696\r", seq++);
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,aeq++); //seq++);
+        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++, seq++);  //,aeq++); //seq++);
 }
 
 void forwardState()
 {
 	//Serial.println("forwardState, moving forward");
 	droneState = 4;
-        sprintf(data,"AT*PCMD=%d,0,0,forwardSpeed,0,0\r",seq++); 
+        sprintf(data,"AT*PCMD=%d,0,0,forwardSpeed,0,0\r",seq++);
 }
 
 void keepConnection()
