@@ -54,14 +54,16 @@ int seq = 1;	// First sequence command counter
   //int aeq = 1;	// Second sequence command counter
 unsigned long time;
 unsigned long flightTime;
+unsigned long totalTime;
 int droneState = 0;	// Drone state variable
-int rangeStop = 10;	// Range value to stop drone
+int rangeStop = 7;	// Range value to stop drone
 int leftSensor[3];	// Array containing 3 left sensor reads
 int rightSensor[3];	// Array containing 3 right sensor reads
 int verticalSensor[3];	// Array containing 3 vertical sensor reads
 int leftRange = 0;	// largest value of leftSensor[3]
 int rightRange = 0;	// largest value of rightSensor[3]
 int verticalRange = 0;	// largest value of verticalSensor[3]
+int forwardSpeed = -0.3; // forward speed state
 
 
 // flightRange Test demo variables
@@ -83,6 +85,7 @@ void initialState()
 	 rangeTimer = time;
 	 flightTime = time;
 	 keepConn = time;
+	 totalTime = time;
          sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
 	 sprintf(data, "AT*FTRIM=%d\r", seq++);
 //aeq++;
@@ -124,7 +127,8 @@ void forwardState()
 	droneState = 4;
 
 	// Entered a 1 for the second arg in the command to enable reading other values for control
-        sprintf(data,"AT*PCMD=%d,1,0,forwardSpeed,0,0\r",seq++);
+	sprintf(data,"AT*PCMD=%d,1,0,%d,0,0\r",seq++,forwardSpeed);
+        //sprintf(data,"AT*PCMD=%d,1,0,forwardSpeed,0,0\r",seq++);
         //sprintf(data,"AT*PCMD=%d,0,0,forwardSpeed,0,0\r",seq++);
 }
 
@@ -321,6 +325,16 @@ void forwardSensorTest()
 	}
 
 	keepConnection();
+
+	if (millis() - totalTime > 120000)
+	{
+		landingState();
+
+		while(1)
+		{
+			keepConnection();
+		}
+	}
 
 	debugPrint();
 }
