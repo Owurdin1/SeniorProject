@@ -63,12 +63,13 @@ int verticalSensor[3];	// Array containing 3 vertical sensor reads
 int leftRange = 0;	// largest value of leftSensor[3]
 int rightRange = 0;	// largest value of rightSensor[3]
 int verticalRange = 0;	// largest value of verticalSensor[3]
-int forwardSpeed = -0.3; // forward speed state
+int forwardSpeed = -0.2; // forward speed state
 
 
 // flightRange Test demo variables
 int verticalTrigger = 0;
 int forwardTrigger = 0;
+int rangeViolation = 0;
 
 // Variables for range finders
 MultiAnalogRange rangeClass;
@@ -79,15 +80,17 @@ unsigned long keepConn;
 
 void initialState()
 {
-         //Serial.println("initialState keep on ground until given command to fly");
-	 //Serial.println("sending flat trim command to drone to attempt to prevent flying into walls");
-         time = millis();
-	 rangeTimer = time;
-	 flightTime = time;
-	 keepConn = time;
-	 totalTime = time;
-         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
-	 sprintf(data, "AT*FTRIM=%d\r", seq++);
+        //Serial.println("initialState keep on ground until given command to fly");
+	//Serial.println("sending flat trim command to drone to attempt to prevent flying into walls");
+        time = millis();
+	rangeTimer = time;
+	flightTime = time;
+	keepConn = time;
+	totalTime = time;
+        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
+	sprintf(data, "AT*FTRIM=%d\r", seq++);
+
+	delay(200);
 //aeq++;
 }
 
@@ -219,11 +222,11 @@ void rangeCheck()
 
 void forwardSensorTest()
 {
-         if (time == 0)
-         {
-                 initialState();
-         }
-         
+        if (time == 0)
+        {
+                initialState();
+        }
+
 	if (millis() - time > 100)
 	{
 		 // Range finders funciton
@@ -232,8 +235,77 @@ void forwardSensorTest()
 		time = millis();
 
 		//if (rangeClass.sensors[2] < 10)
-		if ((leftRange < rangeStop) && (leftRange != 0) || (rightRange < rangeStop) && (rightRange != 0))
+//		if ((leftRange < rangeStop) && (leftRange != 0) || (rightRange < rangeStop) && (rightRange != 0))
+		if ((leftRange > rangeStop) && (leftRange != 0) || (rightRange > rangeStop) && (rightRange != 0))
 		{
+			if (rangeTimer >= 3)
+			{
+				rangeTimer = 0;
+
+				switch(droneState)
+				{
+					case 0:
+						if (millis() - flightTime > 5000)
+						{
+							takeOffState();
+							flightTime = millis();
+						}
+						else
+						{
+							keepConnection();
+						}
+
+						break;
+					case 1:
+						if (millis() - flightTime > 5000)
+						{
+							hoverState();
+							flightTime = millis();
+						}
+						else
+						{
+							keepConnection();
+						}
+
+						break;
+					case 2:
+						forwardState();
+
+						flightTime = millis();
+
+						Serial.println("Flying forward now");
+
+						break;
+
+					case 4:
+						keepConnection();
+		/*
+						if (millis() - flightTime > 3000)
+						{
+							landingState();
+							Serial.println("Forward flight for 3 seconds complete");
+
+							while (1)
+							{
+								keepConnection();
+							}
+						}
+						else
+						{
+							keepConnection();
+						}
+		*/
+						break;
+
+					default:
+						keepConnection();
+						break;			
+				}
+			}
+/*
+			Serial.println("RangeViolation!!!! Land");
+
+			rangeViolation++;
 			Serial.println("Switch to hover!");
 			hoverState();
 			time = millis();
@@ -244,90 +316,41 @@ void forwardSensorTest()
 				Serial.print(droneState);
 				Serial.println(";");
 			}
+
+			if (rangeViolation == 3)
+			{
+				hoverState();
+
+				while (millis() - time < 2000)
+				{
+					keepConnection();
+				}
+
+				landingState();
+
+				while (1)
+				{
+					keepConnection();
+				}
+			}
+*/
 		}
 	}
 
-	if (rangeTimer >= 3)
-	{
-		rangeTimer = 0;
 
-		switch(droneState)
+
+	if (millis() - totalTime > 60000)
+	{
+
+		Serial.println("Flight done LAND and STAY DOWN!");
+		flightTime = millis();
+		hoverState();
+
+		while (millis() - flightTime < 2000)
 		{
-			case 0:
-				if (millis() - flightTime > 5000)
-				{
-					takeOffState();
-					flightTime = millis();
-				}
-				else
-				{
-					keepConnection();
-				}
-
-				break;
-			case 1:
-				if (millis() - flightTime > 5000)
-				{
-					hoverState();
-					flightTime = millis();
-				}
-				else
-				{
-					keepConnection();
-				}
-
-				break;
-			case 2:
-				if (millis() - flightTime > 5000)
-				{
-					forwardState();
-					flightTime = millis();
-				}
-				else
-				{
-					keepConnection();
-				}
-
-				break;
-				// For testing purposes this will continue forward flight state for 60 seconds
-				// Once the 60 seconds is up it will go to hover for 3 seconds then land
-			case 4:	
-				if (millis() - flightTime > 60000)
-				{
-					hoverState();
-					flightTime = millis();
-
-					while (millis() - flightTime < 3000)
-					{
-						keepConnection();
-					}
-
-					landingState();
-					Serial.println("Flight done, stay on ground!");
-
-					while (1)
-					{
-						keepConnection();
-					}
-				}
-				else
-				{
-					keepConnection();
-				}
-
-				break;
-
-			default:
-				keepConnection();
-				break;
-			
+			keepConnection();
 		}
-	}
 
-	keepConnection();
-
-	if (millis() - totalTime > 120000)
-	{
 		landingState();
 
 		while(1)
