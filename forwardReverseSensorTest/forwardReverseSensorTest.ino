@@ -59,6 +59,7 @@ int seq = 1;	// First sequence command counter
 unsigned long time;
 unsigned long flightTime;
 unsigned long totalTime;
+unsigned long reverseTime;
 int droneState = 0;	// Drone state variable
 int rangeStop = 15;	// Range value to stop drone
 int leftSensor[3];	// Array containing 3 left sensor reads
@@ -67,6 +68,7 @@ int verticalSensor[3];	// Array containing 3 vertical sensor reads
 int leftRange = 0;	// largest value of leftSensor[3]
 int rightRange = 0;	// largest value of rightSensor[3]
 int verticalRange = 0;	// largest value of verticalSensor[3]
+int reverseTrigger = 0;	// reverse trigger, set to 1 if in reverse state
 int forwardSpeed = 1; // forward speed state
 
 // Enumerator for drone States
@@ -79,7 +81,8 @@ enum droneFlightState
 	FORWARDFLIGHT,
 	TURN,
 	FLATTRIMMING,
-	RESETWATCHDOG
+	RESETWATCHDOG,
+	REVERSE
 };
 
 // flightRange Test demo variables
@@ -103,6 +106,7 @@ void initialState()
 	flightTime = time;
 	keepConn = time;
 	totalTime = time;
+	reverseTime = 0;
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
 	Serial.println("initialState first command: ");
 	Serial.println(data);
@@ -169,6 +173,28 @@ void forwardState()
         //sprintf(data,"AT*PCMD=%d,0,0,forwardSpeed,0,0\r",seq++);
 }
 
+// This state is used only to stop forward motion of the drone
+void reverseState()
+{
+	Serial.println("rangeStop has been breached, reverse drone then pass state back to run time.");
+
+	if (reverseTime == 0)
+	{
+		reverseTime = millis();
+	}
+
+	while (millis() - reverseTime < 200)
+	{
+		sprintf(data, "AT*PCMD=%d,1,0,.%d,0,0\r", seq++, forwardSpeed + 1);
+	}
+
+	Serial.println("Reverse command string:");
+	Serial.println(data);
+
+	reverseTime = 0;
+	reverseTrigger = 0;
+}
+
 void keepConnection()
 {
 	//if (millis() - keepConn > 300)
@@ -194,6 +220,9 @@ void keepConnection()
 				break;
 			case FORWARDFLIGHT:
 				forwardState();
+				break;
+			case REVERSE:
+				reverseState();
 				break;
 		  }
 	}
@@ -310,8 +339,11 @@ void forwardSensorTest()
 			{
 				if (millis() - flightTime > 5000)
 				{
-					droneState = FORWARDFLIGHT;
-					flightTime = millis();
+					if (goForward())
+					{
+						droneState = FORWARDFLIGHT;
+						flightTime = millis();
+					}
 				}
 
 				break;
@@ -324,6 +356,17 @@ void forwardSensorTest()
 					droneState = FORWARDFLIGHT;
 				}
 				else
+				{
+					Serial.println("rangeStop breached, STOP the drone!!!");
+					droneState = REVERSE;
+					reverseTrigger = 1;
+				}
+			}
+			case REVERSE:
+			{
+				Serial.println("forwardSensorTest switch statement");
+
+				if (reverseTrigger == 0)
 				{
 					droneState = HOVERING;
 				}
