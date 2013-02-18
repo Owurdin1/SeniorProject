@@ -59,6 +59,7 @@ int seq = 1;	// First sequence command counter
 unsigned long time;
 unsigned long flightTime;
 unsigned long totalTime;
+unsigned long reverseTime;
 int droneState = 0;	// Drone state variable
 int rangeStop = 15;	// Range value to stop drone
 int leftSensor[3];	// Array containing 3 left sensor reads
@@ -67,7 +68,8 @@ int verticalSensor[3];	// Array containing 3 vertical sensor reads
 int leftRange = 0;	// largest value of leftSensor[3]
 int rightRange = 0;	// largest value of rightSensor[3]
 int verticalRange = 0;	// largest value of verticalSensor[3]
-int forwardSpeed = 1; // forward speed state
+int reverseTrigger = 0;	// reverse trigger, set to 1 if in reverseState
+int forwardSpeed = 2; // forward speed state
 
 // Enumerator for drone States
 enum droneFlightState
@@ -79,7 +81,8 @@ enum droneFlightState
 	FORWARDFLIGHT,
 	TURN,
 	FLATTRIMMING,
-	RESETWATCHDOG
+	RESETWATCHDOG,
+	REVERSE
 };
 
 // flightRange Test demo variables
@@ -104,11 +107,13 @@ void initialState()
 	keepConn = time;
 	totalTime = time;
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
-	Serial.println("initialState first command: ");
+	Serial.println("initialState command string: ");
 	Serial.println(data);
 
+	reverseTime = 0;
+
 	sprintf(data, "AT*FTRIM=%d\r", seq++);
-	Serial.println("flatTrim second command: ");
+	Serial.println("flatTrim command string: ");
 	Serial.println(data);
 
 	delay(200);
@@ -120,7 +125,7 @@ void landingState()
         //Serial.println("landingState send land command");
         //droneState = 0;
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,seq++);  //,aeq++); //seq++);
-	Serial.println("landingState: ");
+	Serial.println("landingState command string: ");
 	Serial.println(data);
 }
 
@@ -129,7 +134,7 @@ void takeOffState()
         //Serial.println("takeOffState, tell drone to take off");
         //droneState = 1;
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r",seq++,seq++);  //,aeq++); //seq++);
-	Serial.println("takeOffState: ");
+	Serial.println("takeOffState command string: ");
 	Serial.println(data);
 }
 
@@ -138,7 +143,7 @@ void hoverState()
         //Serial.println("hoverState, hovring with no directions");
         //droneState = 2;
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\r",seq++);
-	Serial.println("hoverState: ");
+	Serial.println("hoverState command string: ");
 	Serial.println(data);
 //aeq++;
 }
@@ -149,7 +154,7 @@ void emergencyLandState()
         //droneState = 3;
 	//sprintf(data,"AT*REF=%d,290717696\r", seq++);
         sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++, seq++);  //,aeq++); //seq++);
-	Serial.println("emergencyLandState: ");
+	Serial.println("emergencyLandState command string: ");
 	Serial.println(data);
 }
 
@@ -160,17 +165,43 @@ void forwardState()
 
 	// Entered a 1 for the second arg in the command to enable reading other values for control
 	sprintf(data, "AT*PCMD=%d,1,0,-.%d,0,0\r", seq++, forwardSpeed);
-	Serial.println("forwardState (data): ");
+	Serial.println("forward command string: ");
 	Serial.println(data);
-	Serial.println("");
-	Serial.print("forwardSpeedValue: ");
-	Serial.println(forwardSpeed);
+	//Serial.println("");
+	//Serial.print("forwardSpeedValue: ");
+	//Serial.println(forwardSpeed);
         //sprintf(data,"AT*PCMD=%d,1,0,forwardSpeed,0,0\r",seq++);
         //sprintf(data,"AT*PCMD=%d,0,0,forwardSpeed,0,0\r",seq++);
 }
 
+void reverseState()
+{
+	//Serial.println("rangeStop has been breached, reverse drone then pass state back to run time.");
+
+	if (reverseTime == 0)
+	{
+		reverseTime = millis();
+	}
+
+	if (millis() - reverseTime < 200)
+	{
+		sprintf(data, "AT*PCMD=%d,1,0,.%d,0,0\r", seq++, forwardSpeed + 1);
+	}
+	else
+	{
+		reverseTime = 0;
+		reverseTrigger = 0;
+	}
+
+	Serial.println("Reverse command string, send for 200 ms: ");
+	Serial.println(data);
+}
+
 void keepConnection()
 {
+	//Serial.print("keepConnection() Function: droneState = ");
+	//Serial.println(droneState);
+
 	//if (millis() - keepConn > 300)
 	// Check for 30 milliseconds rather than 300 for keep connection,
 	// should enable smoother flight
@@ -194,6 +225,9 @@ void keepConnection()
 				break;
 			case FORWARDFLIGHT:
 				forwardState();
+				break;
+			case REVERSE:
+				reverseState();
 				break;
 		  }
 	}
@@ -257,11 +291,11 @@ int goForward()
 
 	if (leftRange > rangeStop && rightRange > rangeStop)
 	{
-		Serial.println("goForward returning a #1!");
+		//Serial.println("goForward returning a #1!");
 		return 1;
 	}
 
-	Serial.println("goForward returning a 0!");
+	//Serial.println("goForward returning a 0!");
 	return 0;
 }
 
@@ -308,7 +342,8 @@ void forwardSensorTest()
 			}
 			case HOVERING:
 			{
-				if (millis() - flightTime > 5000)
+				//if (millis() - flightTime > 5000)
+				if (goForward())
 				{
 					droneState = FORWARDFLIGHT;
 					flightTime = millis();
@@ -320,13 +355,31 @@ void forwardSensorTest()
 			{
 				if (goForward())
 				{
-					Serial.println("Flying forward!!!!");
+					//Serial.println("Flying forward!!!!");
 					droneState = FORWARDFLIGHT;
 				}
 				else
 				{
+					//Serial.println("rangeStop has been breached, STOP the drone!!!");
+
+					droneState = REVERSE;
+					reverseTrigger = 1;
+				}
+
+				break;
+			}
+			case REVERSE:
+			{
+				//Serial.println("Drone in REVERSE state");
+				//Serial.print("reverseTrigger: ");
+				//Serial.println(reverseTrigger);
+
+				if (reverseTrigger == 0)
+				{
 					droneState = HOVERING;
 				}
+
+				break;
 			}
 		}
 	}
