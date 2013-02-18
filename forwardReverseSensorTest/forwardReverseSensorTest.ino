@@ -99,6 +99,26 @@ unsigned long keepConn;
 
 void initialState()
 {
+
+        //Serial.println("initialState keep on ground until given command to fly");
+	//Serial.println("sending flat trim command to drone to attempt to prevent flying into walls");
+        time = millis();
+	rangeTimer = time;
+	flightTime = time;
+	keepConn = time;
+	totalTime = time;
+        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
+	Serial.println("initialState first command: ");
+	Serial.println(data);
+
+	reverseTime = 0;
+
+	sprintf(data, "AT*FTRIM=%d\r", seq++);
+	Serial.println("flatTrim second command: ");
+	Serial.println(data);
+
+	delay(200);
+/*
         //Serial.println("initialState keep on ground until given command to fly");
 	//Serial.println("sending flat trim command to drone to attempt to prevent flying into walls");
         time = millis();
@@ -117,6 +137,7 @@ void initialState()
 
 	delay(200);
 //aeq++;
+*/
 }
 
 void landingState()
@@ -197,6 +218,9 @@ void reverseState()
 
 void keepConnection()
 {
+	Serial.print("keepConnection() Function: droneState = : ");
+	Serial.println(droneState);
+
 	//if (millis() - keepConn > 300)
 	// Check for 30 milliseconds rather than 300 for keep connection,
 	// should enable smoother flight
@@ -282,7 +306,7 @@ void rangeCheck()
 
 int goForward()
 {
-	//debugPrint();
+	debugPrint();
 
 	if (leftRange > rangeStop && rightRange > rangeStop)
 	{
@@ -350,10 +374,18 @@ void forwardSensorTest()
 			}
 			case FORWARDFLIGHT:
 			{
-				if (goForward())
+				int forwardTestInt = goForward();
+				Serial.print("forwardTestInt = ");
+				Serial.println(forwardTestInt);
+
+				if (forwardTestInt == 1)
 				{
 					Serial.println("Flying forward!!!!");
+
 					droneState = FORWARDFLIGHT;
+
+					Serial.print("Forward switch: droneState = ");
+					Serial.println(droneState);
 				}
 				else
 				{
@@ -361,15 +393,20 @@ void forwardSensorTest()
 					droneState = REVERSE;
 					reverseTrigger = 1;
 				}
+
+				break;
 			}
 			case REVERSE:
 			{
-				Serial.println("forwardSensorTest switch statement");
-
+				Serial.println("Drone in REVERSE state");
+				Serial.print("Reverse function isn't being called for some reason so: reverseTrigger = ");
+				Serial.println(reverseTrigger);
 				if (reverseTrigger == 0)
 				{
 					droneState = HOVERING;
 				}
+
+				break;
 			}
 		}
 	}
