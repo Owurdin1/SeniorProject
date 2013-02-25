@@ -48,29 +48,56 @@ unsigned char security_passphrase_len;
 //---------------------------------------------------------------------------
 
 //===========================================================================
-int testing = 1;
+int testing = 1; // Testing variable will not init WiFi if this is on
 //===========================================================================
 
 // Variables for drone states
-char data[100];
-char yj_mac[17];
-int seq = 1;	// First sequence command counter
-  //int aeq = 1;	// Second sequence command counter
-unsigned long time;
-unsigned long flightTime;
-unsigned long totalTime;
-unsigned long reverseTime;
-int droneState = 0;	// Drone state variable
-int rangeStop = 15;	// Range value to stop drone
-int leftSensor[3];	// Array containing 3 left sensor reads
-int rightSensor[3];	// Array containing 3 right sensor reads
-int verticalSensor[3];	// Array containing 3 vertical sensor reads
-int leftRange = 0;	// largest value of leftSensor[3]
-int rightRange = 0;	// largest value of rightSensor[3]
-int verticalRange = 0;	// largest value of verticalSensor[3]
-int reverseTrigger = 0;	// reverse trigger, set to 1 if in reverseState
-float forwardSpeed = -0.1; // forward speed state
+char data[100];			// UDP Stream variable (extern char data[] in udpapp.c)
+char yj_mac[17];		// RedBack mac address variable
+
+// Sequence counters for drone commands
+int seq = 1;			// First sequence command counter
+int aeq = 1;			// Second sequence command counter
+int turnCounter = 0;		// counter for number of turns while drone is in one place
+
+// Timer variables for various applications
+unsigned long time;		// Local time variable
+unsigned long flightTime;	// Flight time variable for use in between states
+unsigned long totalTime;	// total time drone has been flying
+unsigned long reverseTime;	// reverse timer to stop drone from forward motion
+unsigned long keepConn;		// keep connection method time variable
+unsigned long turnTimer;	// turn timer to set desired angle per turn sequence
+unsigned long verticalTimer;	// vertical timer to set desired height
+
+
+// State variable
+int droneState = 0;		// Drone state variable
+
+// Range variables
+int rangeStop = 15;		// Range value to stop drone
+int leftSensor[3];		// Array containing 3 left sensor reads
+int rightSensor[3];		// Array containing 3 right sensor reads
+int verticalSensor[3];		// Array containing 3 vertical sensor reads
+int downSensor[3];		// Array containing 3 down sensor reads
+int leftRange = 0;		// largest value of leftSensor[3]
+int rightRange = 0;		// largest value of rightSensor[3]
+int verticalRange = 0;		// largest value of verticalSensor[3]
+int downRange = 0;		// largest value of downSensor[3]
+int reverseTrigger = 0;		// reverse trigger, set to 1 if in reverseState
+int turnTrigger = 0;		// turn trigger, set to 1 if in turnState
+int verticalTrigger = 0;	// vertical trigger, set to 1 if in vertical state
+int verticalUpDown = 0;		// vertical direction, 0 = up, 1 = down
+
+// flight speed variables
+float forwardSpeed = -0.1;	// forward speed state
 float reverseSpeed = 0.2;	// reverse speed
+float turnSpeed = -1;		// turn speed, turn left max speed
+float downSpeed = -0.5;		// downward speed
+float upSpeed = 0.5;		// upward speed
+
+// Variables for range finders
+MultiAnalogRange rangeClass;	// instance created of range finder library
+int rangeTimer = 0;		// range timer counter
 
 // Enumerator for drone States
 enum droneFlightState
@@ -83,21 +110,22 @@ enum droneFlightState
 	TURN,
 	FLATTRIMMING,
 	RESETWATCHDOG,
-	REVERSE
+	REVERSE,
+	VERTICAL
 };
 
-// flightRange Test demo variables
-int verticalTrigger = 0;
-int forwardTrigger = 0;
-int rangeViolation = 0;
+// Enumerator for vertical flight States
+enum verticalDirection
+{
+	UP,
+	DOWN
+};
 
-// Variables for range finders
-MultiAnalogRange rangeClass;
-int rangeTimer = 0;
 
-// Variables for Keep Connection
-unsigned long keepConn;
-
+/*
+* Initial state function. Sends drone preflight information
+* and sets initial values to timers.
+*/
 void initialState()
 {
         //Serial.println("initialState keep on ground until given command to fly");
@@ -107,25 +135,30 @@ void initialState()
 	flightTime = time;
 	keepConn = time;
 	totalTime = time;
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",1,1);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", 1, 1);
+
+	// Printing command structure to serial output
 	Serial.println("initialState command string: ");
 	Serial.println(data);
 
 	reverseTime = 0;
 
 	sprintf(data, "AT*FTRIM=%d\r", seq++);
+	aeq = seq + 1;	// Make sure that aeq stays ahead of seq for sequencing
+
+	// Printing command structure to serial output
 	Serial.println("flatTrim command string: ");
 	Serial.println(data);
 
 	delay(200);
-//aeq++;
 }
 
 void landingState()
 {
         //Serial.println("landingState send land command");
-        //droneState = 0;
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++,seq++);  //,aeq++); //seq++);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);  //,seq++); //seq++);
+
+	// Printing command structure to serial output
 	Serial.println("landingState command string: ");
 	Serial.println(data);
 }
@@ -133,8 +166,9 @@ void landingState()
 void takeOffState()
 {
         //Serial.println("takeOffState, tell drone to take off");
-        //droneState = 1;
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r",seq++,seq++);  //,aeq++); //seq++);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r", seq++, aeq++);  //,seq++); //seq++);
+
+	// Printing command structure to serial output
 	Serial.println("takeOffState command string: ");
 	Serial.println(data);
 }
@@ -142,19 +176,20 @@ void takeOffState()
 void hoverState()
 {
         //Serial.println("hoverState, hovring with no directions");
-        //droneState = 2;
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\r",seq++);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\r", seq++);
+	aeq = seq + 1;
+
+	// Printing command structure to serial output
 	Serial.println("hoverState command string: ");
 	Serial.println(data);
-//aeq++;
 }
 
 void emergencyLandState()
 {
         //Serial.println("landingState send land command");
-        //droneState = 3;
-	//sprintf(data,"AT*REF=%d,290717696\r", seq++);
-        sprintf(data,"AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r",seq++, seq++);  //,aeq++); //seq++);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);  //,seq++); //seq++);
+
+	// Printing command structure to serial output
 	Serial.println("emergencyLandState command string: ");
 	Serial.println(data);
 }
@@ -162,17 +197,13 @@ void emergencyLandState()
 void forwardState()
 {
 	//Serial.println("forwardState, moving forward");
-	//droneState = 4;
-
 	// Entered a 1 for the second arg in the command to enable reading other values for control
 	sprintf(data, "AT*PCMD=%d,1,0,%ld,0,0\r", seq++, forwardSpeed);
+	aeq = seq + 1;
+
+	// Printing command structure to serial output
 	Serial.println("forward command string: ");
 	Serial.println(data);
-	//Serial.println("");
-	//Serial.print("forwardSpeedValue: ");
-	//Serial.println(forwardSpeed);
-        //sprintf(data,"AT*PCMD=%d,1,0,forwardSpeed,0,0\r",seq++);
-        //sprintf(data,"AT*PCMD=%d,0,0,forwardSpeed,0,0\r",seq++);
 }
 
 void reverseState()
@@ -187,6 +218,7 @@ void reverseState()
 	if (millis() - reverseTime < 200)
 	{
 		sprintf(data, "AT*PCMD=%d,1,0,%ld,0,0\r", seq++, reverseSpeed);
+		aeq = seq + 1;
 	}
 	else
 	{
@@ -194,8 +226,74 @@ void reverseState()
 		reverseTrigger = 0;
 	}
 
-	Serial.println("Reverse command string, send for 200 ms: ");
+	// Printing command structure to serial output
+	Serial.println("Reverse command string, send every 30ms for 200 ms: ");
 	Serial.println(data);
+}
+
+void turnState()
+{
+	//Serial.println("goForward has failed must turn drone");
+
+	if (turnTimer == 0)
+	{
+		turnTimer = millis();
+	}
+
+	if (millis() - turnTimer < 300)
+	{
+		sprintf(data, "AT*PCMD=%d,1,0,0,0,%ld\r", seq++, turnSpeed);
+		aeq = seq + 1;
+	}
+	else
+	{
+		turnTimer = 0;
+		turnTrigger = 0;
+		turnCounter++;
+	}
+
+	// Printing command structure to serial output
+	Serial.println("Turn command string, send every 30ms for 300ms: ");
+	Serial.println(data);
+}
+
+void verticalState()
+{
+	if (verticalTimer == 0)
+	{
+		verticalTimer = millis();
+	}
+
+	if (millis() - verticalTimer < 1000)
+	{
+		switch(verticalUpDown)
+		{
+			case UP:
+				flyUp();
+				break;
+			case DOWN:
+				flyDown();
+				break;
+		}
+	}
+	else
+	{
+		verticalTrigger = 0;
+		verticalTimer = 0;
+		turnCounter = 0;
+	}
+}
+
+void flyDown()
+{
+	sprintf(data, "AT*PCMD=%d,1,0,0,%ld,0\r", seq++, downSpeed);
+	aeq = seq + 1;
+}
+
+void flyUp()
+{
+	sprintf(data, "AT*PCMD=%d,1,0,0,%ld,0\r", seq++, upSpeed);
+	aeq = seq + 1;
 }
 
 void keepConnection()
@@ -203,7 +301,6 @@ void keepConnection()
 	//Serial.print("keepConnection() Function: droneState = ");
 	//Serial.println(droneState);
 
-	//if (millis() - keepConn > 300)
 	// Check for 30 milliseconds rather than 300 for keep connection,
 	// should enable smoother flight
 	if (millis() - keepConn > 30)
@@ -229,6 +326,12 @@ void keepConnection()
 				break;
 			case REVERSE:
 				reverseState();
+				break;
+			case TURN:
+				turnState();
+				break;
+			case VERTICAL:
+				verticalState();
 				break;
 		  }
 	}
@@ -300,7 +403,93 @@ int goForward()
 	return 0;
 }
 
-void forwardSensorTest()
+int goVertical()
+{
+	// if drone can go up then return UP; else DOWN
+	return UP;
+}
+
+void stateSetter()
+{
+	switch (droneState)
+	{
+		case LANDED:
+		{
+			droneState = TAKEOFF;
+			flightTime = millis();
+			break;
+		}
+		case TAKEOFF:
+		{
+			// send take off for at least 3 seconds to be sure drone
+			// is ready to enter hover state
+			if (millis() - flightTime > 3000)
+			{
+				droneState = HOVERING;
+				flightTime = millis();
+			}
+
+			break;
+		}
+		case HOVERING:
+		{
+			// Make sure forward range is clear
+			if (goForward())
+			{
+				droneState = FORWARDFLIGHT;
+				flightTime = millis();
+			}
+			// If drone has gone through turn sequence
+			// more than 4 times it will change to vertical flight
+			else if (turnCounter >= 4 && verticalTrigger == 0)
+			{
+				droneState = VERTICAL;
+				verticalUpDown = goVertical();				
+				verticalTrigger = 1;
+			}
+			else if (turnTrigger == 0 && verticalTrigger == 0)
+			{
+				droneState = TURN;
+				flightTime = millis();
+				turnTrigger = 1;
+			}
+
+			break;
+		}
+		case FORWARDFLIGHT:
+		{
+			if (goForward())
+			{
+				//Serial.println("Flying forward!!!!");
+				droneState = FORWARDFLIGHT;
+			}
+			else
+			{
+				//Serial.println("rangeStop has been breached, STOP the drone!!!");
+
+				droneState = REVERSE;
+				reverseTrigger = 1;
+			}
+
+			break;
+		}
+		case REVERSE:
+		{
+			//Serial.println("Drone in REVERSE state");
+			//Serial.print("reverseTrigger: ");
+			//Serial.println(reverseTrigger);
+
+			if (reverseTrigger == 0)
+			{
+				droneState = HOVERING;
+			}
+
+			break;
+		}
+	}
+}
+
+void flyDrone()
 {
 	if (time == 0)
 	{
@@ -318,80 +507,19 @@ void forwardSensorTest()
 	if (rangeTimer >= 3)
 	{
 		rangeTimer = 0;
-
-		switch (droneState)
-		{
-			case LANDED:
-			{
-				if (millis() - flightTime > 5000)
-				{
-					droneState = TAKEOFF;
-					flightTime = millis();
-				}
-
-				break;
-			}
-			case TAKEOFF:
-			{
-				if (millis() - flightTime > 5000)
-				{
-					droneState = HOVERING;
-					flightTime = millis();
-				}
-
-				break;
-			}
-			case HOVERING:
-			{
-				//if (millis() - flightTime > 5000)
-				if (goForward())
-				{
-					droneState = FORWARDFLIGHT;
-					flightTime = millis();
-				}
-
-				break;
-			}
-			case FORWARDFLIGHT:
-			{
-				if (goForward())
-				{
-					//Serial.println("Flying forward!!!!");
-					droneState = FORWARDFLIGHT;
-				}
-				else
-				{
-					//Serial.println("rangeStop has been breached, STOP the drone!!!");
-
-					droneState = REVERSE;
-					reverseTrigger = 1;
-				}
-
-				break;
-			}
-			case REVERSE:
-			{
-				//Serial.println("Drone in REVERSE state");
-				//Serial.print("reverseTrigger: ");
-				//Serial.println(reverseTrigger);
-
-				if (reverseTrigger == 0)
-				{
-					droneState = HOVERING;
-				}
-
-				break;
-			}
-		}
+		stateSetter();
 	}
 
-	if (millis() - totalTime > 20000)
+/*
+	// If drone runs for 15 minutes it will stop 
+	// and land to save battery
+	if (millis() - batteryTimer > 900000)
 	{
 		droneState = EMERGENCYLAND;
 	}
+*/
 
 	keepConnection();
-
 }
 
 void debugPrint()
@@ -442,5 +570,5 @@ void loop()
 	}
 	
         // Function to begin forward flight test
-        forwardSensorTest();
+        flyDrone();
 }
