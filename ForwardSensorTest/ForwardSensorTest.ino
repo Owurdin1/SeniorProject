@@ -1,5 +1,5 @@
 /*
- * UDP endpoint test edit with windows
+ * UDP endpoint
  *
  * A simple UDP endpoint example using the WiShield 1.0
  *
