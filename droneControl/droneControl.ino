@@ -48,7 +48,7 @@ unsigned char security_passphrase_len;
 //---------------------------------------------------------------------------
 
 //===========================================================================
-int testing = 1; // Testing variable will not init WiFi if this is on
+int testing = 1; 		// Testing variable will not init WiFi if this is on
 //===========================================================================
 
 // Variables for drone states
@@ -78,11 +78,10 @@ int rangeStop = 15;		// Range value to stop drone
 int leftSensor[3];		// Array containing 3 left sensor reads
 int rightSensor[3];		// Array containing 3 right sensor reads
 int verticalSensor[3];		// Array containing 3 vertical sensor reads
-int downSensor[3];		// Array containing 3 down sensor reads
 int leftRange = 0;		// largest value of leftSensor[3]
 int rightRange = 0;		// largest value of rightSensor[3]
 int verticalRange = 0;		// largest value of verticalSensor[3]
-int downRange = 0;		// largest value of downSensor[3]
+int downRange = 0;		// value from drone altitude sensor
 int reverseTrigger = 0;		// reverse trigger, set to 1 if in reverseState
 int turnTrigger = 0;		// turn trigger, set to 1 if in turnState
 int verticalTrigger = 0;	// vertical trigger, set to 1 if in vertical state
@@ -108,8 +107,6 @@ enum droneFlightState
 	EMERGENCYLAND,
 	FORWARDFLIGHT,
 	TURN,
-	FLATTRIMMING,
-	RESETWATCHDOG,
 	REVERSE,
 	VERTICAL
 };
@@ -156,7 +153,7 @@ void initialState()
 void landingState()
 {
         //Serial.println("landingState send land command");
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);  //,seq++); //seq++);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
 
 	// Printing command structure to serial output
 	Serial.println("landingState command string: ");
@@ -166,7 +163,7 @@ void landingState()
 void takeOffState()
 {
         //Serial.println("takeOffState, tell drone to take off");
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r", seq++, aeq++);  //,seq++); //seq++);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r", seq++, aeq++);
 
 	// Printing command structure to serial output
 	Serial.println("takeOffState command string: ");
@@ -187,7 +184,7 @@ void hoverState()
 void emergencyLandState()
 {
         //Serial.println("landingState send land command");
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);  //,seq++); //seq++);
+        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
 
 	// Printing command structure to serial output
 	Serial.println("emergencyLandState command string: ");
@@ -375,9 +372,9 @@ void rangeCheck()
 	//Serial.println("rangeCheck function");
 	if (rangeTimer < 3)
 	{
-		leftSensor[rangeTimer] = rangeClass.sensors[left]; //0];
-		rightSensor[rangeTimer] = rangeClass.sensors[right]; //1];
-		verticalSensor[rangeTimer] = rangeClass.sensors[vertical]; //2];
+		leftSensor[rangeTimer] = rangeClass.sensors[left];
+		rightSensor[rangeTimer] = rangeClass.sensors[right];
+		verticalSensor[rangeTimer] = rangeClass.sensors[vertical];
 		rangeTimer++;
 	}
 
@@ -405,8 +402,14 @@ int goForward()
 
 int goVertical()
 {
-	// if drone can go up then return UP; else DOWN
-	return UP;
+	if (verticalRange > rangeStop)
+	{
+		// if drone can go up then return UP; else DOWN
+		return UP;
+	}
+
+	// If no room to move up then drone must go down
+	return DOWN;
 }
 
 void stateSetter()
@@ -466,7 +469,6 @@ void stateSetter()
 			else
 			{
 				//Serial.println("rangeStop has been breached, STOP the drone!!!");
-
 				droneState = REVERSE;
 				reverseTrigger = 1;
 			}
@@ -485,6 +487,13 @@ void stateSetter()
 			}
 
 			break;
+		}
+		case VERTICAL:
+		{
+			if (verticalTrigger == 0)
+			{
+				droneState = HOVERING;
+			}
 		}
 	}
 }
@@ -510,15 +519,6 @@ void flyDrone()
 		stateSetter();
 	}
 
-/*
-	// If drone runs for 15 minutes it will stop 
-	// and land to save battery
-	if (millis() - batteryTimer > 900000)
-	{
-		droneState = EMERGENCYLAND;
-	}
-*/
-
 	keepConnection();
 }
 
@@ -531,11 +531,11 @@ void debugPrint()
 	Serial.print("; DroneState; ");
 	Serial.print(droneState);
 	Serial.print("; Left Sensor; ");
-	Serial.print(leftRange); //rangeClass.sensors[0]);
+	Serial.print(leftRange);
 	Serial.print("; Right Sensor; ");
-	Serial.print(rightRange); //rangeClass.sensors[1]);
+	Serial.print(rightRange);
 	Serial.print("; Vertical Sensor; ");
-	Serial.println(verticalRange); //rangeClass.sensors[2]);
+	Serial.println(verticalRange);
 }
 
 void setup()
@@ -569,6 +569,6 @@ void loop()
 		WiFi.run();
 	}
 	
-        // Function to begin forward flight test
+        // Function to begin drone flight
         flyDrone();
 }
