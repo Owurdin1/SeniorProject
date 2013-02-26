@@ -477,10 +477,6 @@ void stateSetter()
 		}
 		case REVERSE:
 		{
-			//Serial.println("Drone in REVERSE state");
-			//Serial.print("reverseTrigger: ");
-			//Serial.println(reverseTrigger);
-
 			if (reverseTrigger == 0)
 			{
 				droneState = HOVERING;
