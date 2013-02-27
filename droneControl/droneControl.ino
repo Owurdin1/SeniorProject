@@ -20,6 +20,16 @@
 
 //#define WIRELESS_MODE_INFRA	1
 #define WIRELESS_MODE_ADHOC	2
+#define RANGE_TIMER_MAX		3	// rangeTimer maximum value is 3
+#define MAX_SENSORS		3	// maximum number of sensors on drone
+#define MILLISECOND_30		30	// 30 millisecond variable
+#define MILLISECOND_100		100	// 100 millisecond variable
+#define MILLISECOND_200		200	// 200 millisecond variable
+#define MILLISECOND_300		300	// 300 millisecond variable
+#define MILLISECOND_1000	1000	// 1000 millisecond variable
+#define MILLISECOND_3000	3000	// 3000 millisecond variable
+#define BAUD_RATE		9600	// set baud rate value to 9600
+#define MAX_TURNS		4	// maximum number of turns
 
 // Wireless configuration parameters ----------------------------------------
 unsigned char local_ip[] = {192,168,1,4};	// IP address of WiShield
@@ -121,6 +131,13 @@ enum verticalDirection
 	DOWN
 };
 
+// ON or OFF enumerator
+enum onOff
+{
+	OFF,
+	ON
+};
+
 
 /*
 * Initial state function. Sends drone preflight information
@@ -150,7 +167,7 @@ void initialState()
 	Serial.println("flatTrim command string: ");
 	Serial.println(data);
 
-	delay(200);
+	delay(MILLISECOND_200); //200);
 }
 
 void landingState()
@@ -215,7 +232,7 @@ void reverseState()
 		reverseTime = millis();
 	}
 
-	if (millis() - reverseTime < 200)
+	if (millis() - reverseTime < MILLISECOND_200) //200)
 	{
 		sprintf(data, "AT*PCMD=%d,1,0,%ld,0,0\r", seq++, reverseSpeed);
 		aeq = seq + 1;
@@ -240,7 +257,7 @@ void turnState()
 		turnTimer = millis();
 	}
 
-	if (millis() - turnTimer < 300)
+	if (millis() - turnTimer < MILLISECOND_300) // 300)
 	{
 		sprintf(data, "AT*PCMD=%d,1,0,0,0,%ld\r", seq++, turnSpeed);
 		aeq = seq + 1;
@@ -259,12 +276,12 @@ void turnState()
 
 void verticalState()
 {
-	if (verticalTimer == 0)
+	if (verticalTimer == OFF) // 0)
 	{
 		verticalTimer = millis();
 	}
 
-	if (millis() - verticalTimer < 1000)
+	if (millis() - verticalTimer < MILLISECOND_1000) // 1000)
 	{
 		switch(verticalUpDown)
 		{
@@ -288,12 +305,20 @@ void flyDown()
 {
 	sprintf(data, "AT*PCMD=%d,1,0,0,%ld,0\r", seq++, downSpeed);
 	aeq = seq + 1;
+
+	//Printing command structure to serial output
+	Serial.println("flyDown command:");
+	Serial.println(data);
 }
 
 void flyUp()
 {
 	sprintf(data, "AT*PCMD=%d,1,0,0,%ld,0\r", seq++, upSpeed);
 	aeq = seq + 1;
+
+	//Printing command structure to serial output
+	Serial.println("flyUp command:");
+	Serial.println(data);
 }
 
 void keepConnection()
@@ -303,7 +328,7 @@ void keepConnection()
 
 	// Check for 30 milliseconds rather than 300 for keep connection,
 	// should enable smoother flight
-	if (millis() - keepConn > 30)
+	if (millis() - keepConn > MILLISECOND_30) // 30)
 	{
 		  keepConn = millis();
 
@@ -346,7 +371,7 @@ void sensorCompare()
 	int rightRead = 0;
 	int verticalRead = 0;
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < MAX_SENSORS; i++) // 3; i++)
 	{
 		if (leftRead < leftSensor[i])
 		{
@@ -373,7 +398,7 @@ void sensorCompare()
 void rangeCheck()
 {
 	//Serial.println("rangeCheck function");
-	if (rangeTimer < 3)
+	if (rangeTimer < RANGE_TIMER_MAX)
 	{
 		leftSensor[rangeTimer] = rangeClass.sensors[left];
 		rightSensor[rangeTimer] = rangeClass.sensors[right];
@@ -383,7 +408,7 @@ void rangeCheck()
 
 	//Serial.println(rangeTimer);
 
-	if (rangeTimer == 3)
+	if (rangeTimer == RANGE_TIMER_MAX)
 	{
 		sensorCompare();
 	}
@@ -395,12 +420,12 @@ int goForward()
 
 	if (leftRange > rangeStop && rightRange > rangeStop)
 	{
-		//Serial.println("goForward returning a #1!");
-		return 1;
+		//Serial.println("goForward returning ON!");
+		return ON; //1;
 	}
 
-	//Serial.println("goForward returning a 0!");
-	return 0;
+	//Serial.println("goForward returning OFF");
+	return OFF; //0;
 }
 
 int goVertical()
@@ -429,7 +454,7 @@ void stateSetter()
 		{
 			// send take off for at least 3 seconds to be sure drone
 			// is ready to enter hover state
-			if (millis() - flightTime > 3000)
+			if (millis() - flightTime > MILLISECOND_3000) //3000)
 			{
 				droneState = HOVERING;
 				flightTime = millis();
@@ -447,17 +472,17 @@ void stateSetter()
 			}
 			// If drone has gone through turn sequence
 			// more than 4 times it will change to vertical flight
-			else if (turnCounter >= 4 && verticalTrigger == 0)
+			else if (turnCounter >= MAX_TURNS && verticalTrigger == OFF)// 4 && verticalTrigger == 0)
 			{
 				droneState = VERTICAL;
 				verticalUpDown = goVertical();				
-				verticalTrigger = 1;
+				verticalTrigger = ON; //1;
 			}
-			else if (turnTrigger == 0 && verticalTrigger == 0)
+			else if (turnTrigger == OFF && verticalTrigger == OFF) //0)
 			{
 				droneState = TURN;
 				flightTime = millis();
-				turnTrigger = 1;
+				turnTrigger = ON; //1;
 			}
 
 			break;
@@ -473,14 +498,14 @@ void stateSetter()
 			{
 				//Serial.println("rangeStop has been breached, STOP the drone!!!");
 				droneState = REVERSE;
-				reverseTrigger = 1;
+				reverseTrigger = ON; //1;
 			}
 
 			break;
 		}
 		case REVERSE:
 		{
-			if (reverseTrigger == 0)
+			if (reverseTrigger == OFF) //0)
 			{
 				droneState = HOVERING;
 			}
@@ -489,7 +514,7 @@ void stateSetter()
 		}
 		case VERTICAL:
 		{
-			if (verticalTrigger == 0)
+			if (verticalTrigger == OFF) //0)
 			{
 				droneState = HOVERING;
 			}
@@ -505,14 +530,14 @@ void flyDrone()
 	}
 
 	// populate range arrays and get range values
-	if (millis() - time > 100)
+	if (millis() - time > MILLISECOND_100)
 	{
 		rangeClass.GetRanges();
 		rangeCheck();
 		time = millis();
 	}
 
-	if (rangeTimer >= 3)
+	if (rangeTimer >= RANGE_TIMER_MAX) //3)
 	{
 		rangeTimer = 0;
 		stateSetter();
@@ -539,7 +564,7 @@ void debugPrint()
 
 void setup()
 {
-        Serial.begin(9600);
+        Serial.begin(BAUD_RATE);
         Serial.println("");
         Serial.println("");
         Serial.println("Initialize Connection");
