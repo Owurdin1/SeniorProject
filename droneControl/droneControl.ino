@@ -472,14 +472,21 @@ void stateSetter()
 			}
 			// If drone has gone through turn sequence
 			// more than 4 times it will change to vertical flight
-			else if (turnCounter >= MAX_TURNS && verticalTrigger == OFF)// 4 && verticalTrigger == 0)
+			else if (turnCounter >= MAX_TURNS && verticalTrigger == OFF) // 4 && verticalTrigger == 0)
 			{
 				droneState = VERTICAL;
-				verticalUpDown = goVertical();				
+				verticalUpDown = goVertical();
 				verticalTrigger = ON; //1;
 			}
 			else if (turnTrigger == OFF && verticalTrigger == OFF) //0)
 			{
+				/*
+				Serial.println("******* Switching to turn state *******");
+				Serial.println("Turning Variables:");
+				Serial.print("		turnTrigger = ");
+				Serial.println(turnTrigger);
+				*/
+
 				droneState = TURN;
 				flightTime = millis();
 				turnTrigger = ON; //1;
@@ -518,6 +525,17 @@ void stateSetter()
 			{
 				droneState = HOVERING;
 			}
+
+			break;
+		}
+		case TURN:
+		{
+			if (turnTrigger == OFF)
+			{
+				droneState = HOVERING;
+			}
+
+			break;
 		}
 	}
 }
