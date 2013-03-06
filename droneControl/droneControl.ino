@@ -157,7 +157,8 @@ void initialState()
 	// Printing command structure to serial output
 	//Serial.println("initialState command string: ");
 	//Serial.println(data);
-	Serial.print(data);
+	//Serial.print(data);
+	Serial.println("FirstCommand");
 
 	reverseTime = 0;
 
@@ -167,7 +168,8 @@ void initialState()
 	// Printing command structure to serial output
 	//Serial.println("flatTrim command string: ");
 	//Serial.println(data);
-	Serial.print(data);
+	//Serial.print(data);
+	Serial.println("Flattrimming");
 
 	delay(MILLISECOND_200); //200);
 }
@@ -180,7 +182,8 @@ void landingState()
 	// Printing command structure to serial output
 	//Serial.println("landingState command string: ");
 	//Serial.println(data);
-	Serial.print(data);
+	//Serial.print(data);
+	Serial.println("Landing");
 }
 
 void takeOffState()
@@ -191,7 +194,8 @@ void takeOffState()
 	// Printing command structure to serial output
 	//Serial.println("takeOffState command string: ");
 	//Serial.println(data);
-	Serial.print(data);
+	//Serial.print(data);
+	Serial.println("TakeOff");
 }
 
 void hoverState()
@@ -203,7 +207,8 @@ void hoverState()
 	// Printing command structure to serial output
 	//Serial.println("hoverState command string: ");
 	//Serial.println(data);
-	Serial.print(data);
+	//Serial.print(data);
+	Serial.println("Hovering");
 }
 
 void emergencyLandState()
@@ -214,8 +219,8 @@ void emergencyLandState()
 	// Printing command structure to serial output
 	//Serial.println("emergencyLandState command string: ");
 	//Serial.println(data);
-	Serial.print(data);
-
+	//Serial.print(data);
+	Serial.println("EmergencyLandState");
 }
 
 void forwardState()
@@ -228,8 +233,8 @@ void forwardState()
 	// Printing command structure to serial output
 	//Serial.println("forward command string: ");
 	//Serial.println(data);
-	Serial.print(data);
-
+	//Serial.print(data);
+	Serial.println("Forward");
 }
 
 void reverseState()
@@ -255,8 +260,8 @@ void reverseState()
 	// Printing command structure to serial output
 	//Serial.println("Reverse command string, send every 30ms for 200 ms: ");
 	//Serial.println(data);
-	Serial.print(data);
-
+	//Serial.print(data);
+	Serial.println("Reverse");
 }
 
 void turnState()
@@ -283,8 +288,8 @@ void turnState()
 	// Printing command structure to serial output
 	//Serial.println("Turn command string, send every 30ms for 300ms: ");
 	//Serial.println(data);
-	Serial.print(data);
-
+	//Serial.print(data);
+	Serial.println("Turning");
 }
 
 void verticalState()
@@ -322,8 +327,8 @@ void flyDown()
 	//Printing command structure to serial output
 	//Serial.println("flyDown command:");
 	//Serial.println(data);
-	Serial.print(data);
-
+	//Serial.print(data);
+	Serial.println("Down");
 }
 
 void flyUp()
@@ -334,8 +339,8 @@ void flyUp()
 	//Printing command structure to serial output
 	//Serial.println("flyUp command:");
 	//Serial.println(data);
-	Serial.print(data);
-
+	//Serial.print(data);
+	Serial.println("Up");
 }
 
 void keepConnection()
