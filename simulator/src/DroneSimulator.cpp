@@ -7,15 +7,24 @@
 //============================================================================
 
 #include <iostream>
-#include "interfaces/ICommandRead.h"
+#include "CommandRead.h"
+
 using namespace std;
 
 int main()
 {
 	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
 
-	using droneSimulator;
-	ICommandRead cmdRead = new ICommandRead();
-	cmdRead.ICommandRead();
+//	droneSimulator::ICommandRead* cmdRead = new droneSimulator::ICommandRead();
+//	droneSimulator::CommandRead* cmdRead = new droneSimulator::CommandRead();
+//	int fd = cmdRead->openPort();
+//
+//	cout << "fd var is: " << fd << endl;
+	droneSimulator::ICommandRead *cmdRead = new droneSimulator::CommandRead();
+
+	int fd = cmdRead->openPort();
+	cout << "FD = " << fd << endl;
+	delete cmdRead;
+
 	return 0;
 }

@@ -4,14 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../src/CommandRead.cpp \
 ../src/DroneSimulator.cpp \
 ../src/ICommandRead.cpp 
 
 OBJS += \
+./src/CommandRead.o \
 ./src/DroneSimulator.o \
 ./src/ICommandRead.o 
 
 CPP_DEPS += \
+./src/CommandRead.d \
 ./src/DroneSimulator.d \
 ./src/ICommandRead.d 
 

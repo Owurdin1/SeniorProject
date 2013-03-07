@@ -5,14 +5,12 @@
  *      Author: Oscar Wurdinger
  */
 
-#include "interfaces/ICommandRead.h"
-
-namespace droneSimulator
-{
-    void ICommandRead::ICommandRead()
-    {
-        using namespace std;
-
-        cout << "Hi from ICommandRead" << endl;
-    }
-} // namespace droneSimulator
+//#include "interfaces/ICommandRead.h"
+//
+//namespace droneSimulator
+//{
+////    ICommandRead::ICommandRead()
+////    {
+////        std::cout << "Hi from ICommandRead" << std::endl;
+////    }
+//} // namespace droneSimulator
