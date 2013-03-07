@@ -20,16 +20,16 @@
 
 //#define WIRELESS_MODE_INFRA	1
 #define WIRELESS_MODE_ADHOC	2
-#define RANGE_TIMER_MAX		3	// rangeTimer maximum value is 3
-#define MAX_SENSORS		3	// maximum number of sensors on drone
-#define MILLISECOND_30		30	// 30 millisecond variable
-#define MILLISECOND_100		100	// 100 millisecond variable
-#define MILLISECOND_200		200	// 200 millisecond variable
-#define MILLISECOND_300		300	// 300 millisecond variable
-#define MILLISECOND_1000	1000	// 1000 millisecond variable
-#define MILLISECOND_3000	3000	// 3000 millisecond variable
-#define BAUD_RATE		9600	// set baud rate value to 9600
-#define MAX_TURNS		4	// maximum number of turns
+#define RANGE_TIMER_MAX		3	/* rangeTimer maximum value is 3 */
+#define MAX_SENSORS		3	/* maximum number of sensors on drone */
+#define MILLISECOND_30		30	/* 30 millisecond variable */
+#define MILLISECOND_100		100	/* 100 millisecond variable */
+#define MILLISECOND_200		200	/* 200 millisecond variable */
+#define MILLISECOND_300		300	/* 300 millisecond variable */
+#define MILLISECOND_1000	1000	/* 1000 millisecond variable */
+#define MILLISECOND_3000	3000	/* 3000 millisecond variable */
+#define BAUD_RATE		9600	/* set baud rate value to 9600 */
+#define MAX_TURNS		4	/* maximum number of turns */
 
 // Wireless configuration parameters ----------------------------------------
 unsigned char local_ip[] = {192,168,1,4};	// IP address of WiShield
