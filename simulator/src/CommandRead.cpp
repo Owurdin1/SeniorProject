@@ -17,16 +17,25 @@ namespace droneSimulator
 
     int droneSimulator::CommandRead::openPort()
     {
-        droneFlightSequence.open( "droneFlightSequence.txt" );
+//        fileName = "src/droneFlightSequence.txt";
 
-        if ( droneFlightSequence.is_open() )
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
+        const char* file;
+        file = getFileName().c_str(); // fileName.c_str();
+        droneFlightSequence.open( file ); // fileName.c_str() ); // "droneFlightSequence.txt" );
+
+        std::cout << "file name opening = " << file << std::endl;
+        return droneFlightSequence.is_open();
+//        if ( droneFlightSequence.is_open() )
+//        {
+//            /*  A file has been opened and is ready to be read.  */
+//            std::cout << "File has been opened!!!!" << std::endl;
+//            return 1;
+//        }
+//        else
+//        {
+//            std::cout << "File has not been opened!" << std::endl;
+//            return 0;
+//        }
     }
 
     std::string droneSimulator::CommandRead::readPort(std::string name)
@@ -35,6 +44,11 @@ namespace droneSimulator
         // TODO Finish this function!
 //        droneFlightSequence.open
         droneFlightSequence.getline( commandRetrieval, 100 );
+        std::string test(commandRetrieval);
+//        name = name( commandRetrieval );
+        name = test;
+
+        std::cout << "Gotten line returning name: " << name << std::endl;
 
 
         return name;
@@ -48,6 +62,7 @@ namespace droneSimulator
 
     CommandRead::~CommandRead()
     {
-
+        /* Close the file when finished with this class.  */
+        droneFlightSequence.close();
     }
 } // namespace droneSimulator

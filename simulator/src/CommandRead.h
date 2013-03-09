@@ -16,9 +16,9 @@ namespace droneSimulator
 class CommandRead: public virtual droneSimulator::ICommandRead
 {
 private:
-    std::string comCall;
-    std::string fileName;
-    std::ifstream droneFlightSequence;              /*  Filestream to the command input file.  */
+    std::string comCall;                            /*  command called from next line  */
+    std::string fileName;                           /*  Name of the file that was opened  */
+    std::ifstream droneFlightSequence;              /*  File stream to the command input file.  */
 //    std::istream droneFlightSequence;
     char* commandRetrieval;
 public:

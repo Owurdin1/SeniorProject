@@ -23,9 +23,24 @@ int main()
 
 	droneSimulator::ICommandRead *cmdRead = new droneSimulator::CommandRead();
 
-	int fd = cmdRead->openPort();
-	cout << "FD = " << fd << endl;
+//	int fd = cmdRead->openPort();
+//	cout << "FD = " << fd << endl;
+
+    string fileName = cmdRead->getFileName();
+    fileName = "src/droneFlightSequence.txt";
+    cmdRead->setFileName( fileName );
+
+	if ( cmdRead->openPort() )
+	{
+	    cout << "File has been opened let's do some stuff with it!" << endl;
+	}
+	else
+	{
+	    cout << "File wasn't opened, it said \"FUCK OFF!\" " << endl;
+	}
+
 	delete cmdRead;
+	cout << "Have \"Deleted\" cmdRead" << endl;
 
 	return 0;
 }
