@@ -9,6 +9,8 @@
 #define ICOMMANDREAD_H_
 
 #include <iostream>
+#include <fstream>
+//#include <istream>
 #include <string>
 
 namespace droneSimulator
@@ -16,12 +18,21 @@ namespace droneSimulator
 
     class ICommandRead
     {
+    private:
+        // Class variables
+        std::string fileName;
+        std::string currentCommand;
     public:
-//        virtual void ICommandRead();
+        // Contractual Functions
         virtual int openPort() = 0;
         virtual int setPort(int) = 0;
-        virtual char readPort(int) = 0;
-        virtual ~ICommandRead() {};
+        virtual std::string readPort(std::string) = 0;
+        virtual ~ICommandRead() {}
+
+        // Interface functions
+        std::string getFileName();
+        bool setFileName(std::string);
+        std::string getCurrentCommand();
     };
 
 } // namespace droneSimulator

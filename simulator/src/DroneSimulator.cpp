@@ -20,6 +20,7 @@ int main()
 //	int fd = cmdRead->openPort();
 //
 //	cout << "fd var is: " << fd << endl;
+
 	droneSimulator::ICommandRead *cmdRead = new droneSimulator::CommandRead();
 
 	int fd = cmdRead->openPort();

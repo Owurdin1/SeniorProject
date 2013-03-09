@@ -9,29 +9,38 @@
 
 namespace droneSimulator
 {
-
     CommandRead::CommandRead()
     {
         // TODO Auto-generated constructor stub
         std::cout << "Hi from CommandRead implementation!" << std::endl;
-
     }
 
     int droneSimulator::CommandRead::openPort()
     {
-        // TODO open port to file
-        return 1001;
+        droneFlightSequence.open( "droneFlightSequence.txt" );
+
+        return 1;
     }
 
-    char droneSimulator::CommandRead::readPort(int fd)
+    std::string droneSimulator::CommandRead::readPort(std::string name)
     {
-        // TODO Generate read for opened file
-        return (char)fd;
+
+        // TODO Finish this function!
+//        droneFlightSequence.open
+        droneFlightSequence.getline( commandRetrieval, 100 );
+
+
+        return name;
     }
 
     int droneSimulator::CommandRead::setPort(int fd)
     {
         // TODO Generate setting to set up the port
         return 0;
+    }
+
+    CommandRead::~CommandRead()
+    {
+
     }
 } // namespace droneSimulator
