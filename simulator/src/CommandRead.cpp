@@ -19,7 +19,14 @@ namespace droneSimulator
     {
         droneFlightSequence.open( "droneFlightSequence.txt" );
 
-        return 1;
+        if ( droneFlightSequence.is_open() )
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     std::string droneSimulator::CommandRead::readPort(std::string name)

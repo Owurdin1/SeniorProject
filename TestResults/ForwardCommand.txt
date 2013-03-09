@@ -1,0 +1,8 @@
+forward command string with forwardSpeed == -0.10
+AT*PCMD=796,1,0,-1110651699,0,0
+
+
+forward command string with forwardSpeed == -0.20
+AT*PCMD=818,1,0,-1102263091,0,0
+
+
