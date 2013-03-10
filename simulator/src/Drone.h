@@ -20,7 +20,7 @@ public:
     ~Drone();
 
     // Functions to be overridden
-    void processCommand(std::string);
+//    void processCommand( std::string );
     void initializeDrone();
 };
 

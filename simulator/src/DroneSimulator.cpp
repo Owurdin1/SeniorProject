@@ -13,34 +13,39 @@ using namespace std;
 
 int main()
 {
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
-
-//	droneSimulator::ICommandRead* cmdRead = new droneSimulator::ICommandRead();
-//	droneSimulator::CommandRead* cmdRead = new droneSimulator::CommandRead();
-//	int fd = cmdRead->openPort();
-//
-//	cout << "fd var is: " << fd << endl;
+//	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
 
 	droneSimulator::ICommandRead *cmdRead = new droneSimulator::CommandRead();
 
-//	int fd = cmdRead->openPort();
-//	cout << "FD = " << fd << endl;
-
+	string currentCommand;
     string fileName = cmdRead->getFileName();
-    fileName = "src/droneFlightSequence.txt";
+
+//    ==============================================
+//    fileName = "../src/droneFlightSequence.txt";                /*  Use this call to run in terminal  */
+    fileName = "src/droneFlightSequence.txt";                   /*  Use this to run in Eclipse  */
+//    ==============================================
+
     cmdRead->setFileName( fileName );
 
 	if ( cmdRead->openPort() )
 	{
 	    cout << "File has been opened let's do some stuff with it!" << endl;
+
+        for ( int i = 0; i < 10; i++ )
+        {
+            currentCommand = cmdRead->readPort( fileName );
+
+            cout << "currentCommand = " << currentCommand << endl;
+        }
 	}
 	else
 	{
-	    cout << "File wasn't opened, it said \"FUCK OFF!\" " << endl;
+	    cout << "File wasn't opened" << endl;
 	}
 
+
 	delete cmdRead;
-	cout << "Have \"Deleted\" cmdRead" << endl;
+	cout << "Reached end of Main function" << endl;
 
 	return 0;
 }

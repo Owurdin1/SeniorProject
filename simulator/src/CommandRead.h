@@ -8,6 +8,8 @@
 #ifndef COMMANDREAD_H_
 #define COMMANDREAD_H_
 
+#define MINIMUM_COMMAND_SIZE 1                      /*  shortest command is Up therefore must be at least 1  */
+
 #include "interfaces/ICommandRead.h"
 
 namespace droneSimulator
@@ -16,11 +18,12 @@ namespace droneSimulator
 class CommandRead: public virtual droneSimulator::ICommandRead
 {
 private:
+    /*  Private Class Variables  */
+    char* commandRetrieval;
     std::string comCall;                            /*  command called from next line  */
     std::string fileName;                           /*  Name of the file that was opened  */
     std::ifstream droneFlightSequence;              /*  File stream to the command input file.  */
-//    std::istream droneFlightSequence;
-    char* commandRetrieval;
+
 public:
     CommandRead();                                  /*  Constructor  */
     ~CommandRead();                                 /*  Destructor  */

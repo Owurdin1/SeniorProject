@@ -17,52 +17,43 @@ namespace droneSimulator
 
     int droneSimulator::CommandRead::openPort()
     {
-//        fileName = "src/droneFlightSequence.txt";
-
         const char* file;
-        file = getFileName().c_str(); // fileName.c_str();
-        droneFlightSequence.open( file ); // fileName.c_str() ); // "droneFlightSequence.txt" );
+        file = getFileName().c_str();
+        droneFlightSequence.open( file );
 
         std::cout << "file name opening = " << file << std::endl;
         return droneFlightSequence.is_open();
-//        if ( droneFlightSequence.is_open() )
-//        {
-//            /*  A file has been opened and is ready to be read.  */
-//            std::cout << "File has been opened!!!!" << std::endl;
-//            return 1;
-//        }
-//        else
-//        {
-//            std::cout << "File has not been opened!" << std::endl;
-//            return 0;
-//        }
     }
 
     std::string droneSimulator::CommandRead::readPort(std::string name)
     {
+        std::string newCommand;
+        bool commandString = false;
 
-        // TODO Finish this function!
-//        droneFlightSequence.open
-        droneFlightSequence.getline( commandRetrieval, 100 );
-        std::string test(commandRetrieval);
-//        name = name( commandRetrieval );
-        name = test;
-
-        std::cout << "Gotten line returning name: " << name << std::endl;
-
+        while ( !commandString )
+        {
+            std::getline( droneFlightSequence, newCommand );
+            name = newCommand;
+            if ( name.length() > MINIMUM_COMMAND_SIZE )
+            {
+                commandString = true;
+            }
+        }
+//        std::cout << "Gotten lines returning name: " << name << std::endl;
 
         return name;
     }
 
     int droneSimulator::CommandRead::setPort(int fd)
     {
-        // TODO Generate setting to set up the port
+        std::cout << "This function isn't needed for this implementation" << std::endl;
         return 0;
     }
 
     CommandRead::~CommandRead()
     {
         /* Close the file when finished with this class.  */
+        std::cout << "Closing droneFlightSequence file" << std::endl;
         droneFlightSequence.close();
     }
 } // namespace droneSimulator

@@ -21,10 +21,10 @@ namespace droneSimulator
         // TODO Build the destructor
     }
 
-    void Drone::processCommand(std::string)
-    {
-        // TODO build process command for this concrete instance
-    }
+//    void Drone::processCommand(std::string)
+//    {
+//        // TODO build process command for this concrete instance
+//    }
 
     void Drone::initializeDrone()
     {
