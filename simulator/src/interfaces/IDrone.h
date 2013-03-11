@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include "ICommandRead.h"
 
 namespace droneSimulator
 {
@@ -18,10 +19,13 @@ namespace droneSimulator
     private:
         /*  Private variables  */
         std::string currentState;
+//        std::string fileName;
 
     public:
-        /*  Contractual functions  */
+//        std::string fileName;
+        /*  Virtual functions  */
         virtual void initializeDrone() = 0;             /*  Initialization connects to command module and asks for commands  */
+        virtual std::string retrieveCommand() = 0;      /*  Retrieves command from the command interface and returns as a string  */
         virtual ~IDrone() {}                            /*  Virtual Destructor  */
 
         /*  Interface functions  */

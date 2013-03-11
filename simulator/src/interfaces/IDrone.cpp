@@ -9,11 +9,18 @@
 
 namespace droneSimulator
 {
+    /*
+     * getter for the currentState variable.
+     */
     std::string IDrone::getState()
     {
         return currentState;
     }
 
+    /*
+     * changes the current state of the drone and
+     * updates the terminal.
+     */
     void IDrone::changeState(std::string newState)
     {
         if ( newState.compare( "Up" ) == 0 )
@@ -70,6 +77,11 @@ namespace droneSimulator
         }
     }
 
+    /*
+     * Processes commands for the drone and calls changeState
+     * function if there is a new state required to handle
+     * the new command.
+     */
     void IDrone::processCommand( std::string newState )
     {
         if ( newState.compare( currentState ) == !0 )
@@ -79,8 +91,28 @@ namespace droneSimulator
         }
     }
 
+    /*
+     * Since drone does this sequence in a loop until it runs into an emergency
+     * of some sort, either battery, or crash has been detected. Behavior of
+     * program will act in same manner.
+     */
     void IDrone::flyDrone()
     {
+        std::string nextCommand;
 
+        while ( 1 )
+        {
+            // Retrieve command from the command source
+            nextCommand = retrieveCommand();
+
+            // Process command and carry out it's instructions
+            processCommand( nextCommand );
+
+            // If transitions to an emergency state then drone stops flying
+            if ( nextCommand.compare( "EmergencyLandState" ) )
+            {
+                break;
+            }
+        }
     }
 }; /*  end droneSimulator  */

@@ -5,17 +5,17 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/CommandRead.cpp \
-../src/Drone.cpp \
+../src/DroneFileRun.cpp \
 ../src/DroneSimulator.cpp 
 
 OBJS += \
 ./src/CommandRead.o \
-./src/Drone.o \
+./src/DroneFileRun.o \
 ./src/DroneSimulator.o 
 
 CPP_DEPS += \
 ./src/CommandRead.d \
-./src/Drone.d \
+./src/DroneFileRun.d \
 ./src/DroneSimulator.d 
 
 
