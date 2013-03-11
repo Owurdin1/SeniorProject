@@ -16,10 +16,10 @@ namespace droneSimulator
 {
     class IDrone
     {
-    private:
-        /*  Private variables  */
+    protected:
+        /*  Protected variables  */
         std::string currentState;
-//        std::string fileName;
+        std::string fileName;
 
     public:
 //        std::string fileName;

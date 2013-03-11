@@ -8,7 +8,12 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
+#define FILENAME "src/droneFlightSequence.txt"
+//#define FILENAME "../src/droneFlightSequence.txt"
+
 #include "interfaces/IDrone.h"
+#include "CommandRead.h"
+#include <unistd.h>
 
 namespace droneSimulator
 {
@@ -16,7 +21,9 @@ namespace droneSimulator
 class DroneFileRun: public droneSimulator::IDrone // virtual droneSimulator::IDrone
 {
 private:
-    std::string fileName;
+//    std::string fileName; // = "src/droneFlightSequence.txt";
+    static const unsigned int waitTime = 30000;
+    CommandRead commandRead;
 public:
     DroneFileRun();
     ~DroneFileRun();

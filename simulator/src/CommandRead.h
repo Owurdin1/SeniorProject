@@ -15,7 +15,7 @@
 namespace droneSimulator
 {
 
-class CommandRead: public virtual droneSimulator::ICommandRead
+class CommandRead : public ICommandRead
 {
 private:
     /*  Private Class Variables  */

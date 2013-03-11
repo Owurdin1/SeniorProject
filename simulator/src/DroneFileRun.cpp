@@ -12,34 +12,43 @@ namespace droneSimulator
 
     DroneFileRun::DroneFileRun()
     {
-        // TODO Auto-generated constructor stub
-
+        fileName = FILENAME;    // "src/droneFlightSequence.txt";
+//        fileName = "src/droneFlightSequence.txt";
+//        fileName = "../src/droneFlightSequence.txt";
     }
 
     DroneFileRun::~DroneFileRun()
     {
-        // TODO Build the destructor
+//        commandRead.~CommandRead();
     }
-
-//    void Drone::processCommand(std::string)
-//    {
-//        // TODO build process command for this concrete instance
-//    }
 
     std::string DroneFileRun::retrieveCommand()
     {
-        // TODO build function to retrieve command from ICommandRead interface
-//        droneSimulator::ICommandRead *commandRead;
+//        std::string cmdRead = commandRead.getFileName();
 //        commandRead->setFileName( fileName );
+        usleep( waitTime );
 
         std::string nextCommand;
+
+        nextCommand = commandRead.readPort( fileName );
+
+//        std::cout << "Retrieved nextCommand: " << nextCommand << std::endl;
 
         return nextCommand;
     }
 
     void DroneFileRun::initializeDrone()
     {
-        // TODO  Initialize drone for this concrete instance
+        commandRead.setFileName( fileName );
+
+        if ( commandRead.openPort() )
+        {
+            std::cout << "File has been opened!" << std::endl;
+        }
+        else
+        {
+            std::cout << "File was not opened!" << std::endl;
+        }
     }
 
 } /* namespace droneSimulator */

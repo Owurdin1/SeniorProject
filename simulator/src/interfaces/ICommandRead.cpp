@@ -19,8 +19,9 @@ namespace droneSimulator
         fileName = newFileName;
 
         // make sure that newFileName has been set properly
-        if (fileName.compare(newFileName) == 0)
+        if ( fileName.compare( newFileName ) == 0 )
         {
+//            std::cout << "fileName was set" << std::endl;
             return true;
         }
 
