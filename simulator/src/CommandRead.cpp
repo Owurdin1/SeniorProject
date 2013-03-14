@@ -17,8 +17,7 @@ namespace droneSimulator
      */
     CommandRead::CommandRead()
     {
-        // TODO Auto-generated constructor stub
-        std::cout << "Hi from CommandRead implementation!" << std::endl;
+
     }
 
     /*
@@ -57,7 +56,6 @@ namespace droneSimulator
                 commandString = true;
             }
         }
-//        std::cout << "Gotten lines returning name: " << name << std::endl;
 
         return name;
     }
@@ -69,7 +67,6 @@ namespace droneSimulator
      */
     int droneSimulator::CommandRead::setPort(int fd)
     {
-        std::cout << "This function isn't needed for this implementation" << std::endl;
         return 0;
     }
 
@@ -79,7 +76,6 @@ namespace droneSimulator
     CommandRead::~CommandRead()
     {
         /* Close the file when finished with this class.  */
-//        std::cout << "Closing droneFlightSequence file" << std::endl;
         droneFlightSequence.close();
     }
 } // namespace droneSimulator

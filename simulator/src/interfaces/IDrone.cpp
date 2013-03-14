@@ -23,8 +23,6 @@ namespace droneSimulator
      */
     void IDrone::changeState(std::string newState)
     {
-        std::cout << "Changing state of drone to newState: " << newState << std::endl;
-
         if ( newState.compare( "Up" ) == 0 )
         {
             std::cout << "Turn counter has reached max Drone flying Up" << std::endl;
@@ -86,8 +84,6 @@ namespace droneSimulator
      */
     void IDrone::processCommand( std::string newState )
     {
-//        std::cout << "Processing newState: " << newState << std::endl;
-//        std::cout << "currentState is: " << currentState << std::endl;
 
         if ( newState.compare( currentState ) != 0 )
         {
@@ -109,8 +105,6 @@ namespace droneSimulator
         {
             // Retrieve command from the command source
             nextCommand = retrieveCommand();
-
-//            std::cout << "flyDrone retrieved nextCommand: " << nextCommand << std::endl;
 
             // Process command and carry out it's instructions
             processCommand( nextCommand );

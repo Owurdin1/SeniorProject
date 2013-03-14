@@ -22,7 +22,6 @@ namespace droneSimulator
         std::string fileName;
 
     public:
-//        std::string fileName;
         /*  Virtual functions  */
         virtual void initializeDrone() = 0;             /*  Initialization connects to command module and asks for commands  */
         virtual std::string retrieveCommand() = 0;      /*  Retrieves command from the command interface and returns as a string  */
@@ -34,6 +33,5 @@ namespace droneSimulator
         void processCommand( std::string );             /*  Processes command and calls changeState if new state is needed  */
         void flyDrone();                                /*  Drone flight function will run in loop until drone enters EmergencyLandingState  */
     };
-
 } /* namespace droneSimulator */
 #endif /* IDRONE_H_ */

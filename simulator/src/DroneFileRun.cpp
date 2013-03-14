@@ -12,27 +12,21 @@ namespace droneSimulator
 
     DroneFileRun::DroneFileRun()
     {
-        fileName = FILENAME;    // "src/droneFlightSequence.txt";
-//        fileName = "src/droneFlightSequence.txt";
-//        fileName = "../src/droneFlightSequence.txt";
+        fileName = FILENAME;
     }
 
     DroneFileRun::~DroneFileRun()
     {
-//        commandRead.~CommandRead();
+
     }
 
     std::string DroneFileRun::retrieveCommand()
     {
-//        std::string cmdRead = commandRead.getFileName();
-//        commandRead->setFileName( fileName );
         usleep( waitTime );
 
         std::string nextCommand;
 
         nextCommand = commandRead.readPort( fileName );
-
-//        std::cout << "Retrieved nextCommand: " << nextCommand << std::endl;
 
         return nextCommand;
     }
