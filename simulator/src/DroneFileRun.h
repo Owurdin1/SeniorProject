@@ -21,7 +21,8 @@ namespace droneSimulator
 class DroneFileRun: public droneSimulator::IDrone // virtual droneSimulator::IDrone
 {
 private:
-    static const unsigned int waitTime = 30000;
+    static const unsigned int waitTime = 30000;       /*  30 millisecond wait time to mimic drone  */
+//    static const unsigned int waitTime = 0;     /*  0 wait time for testing purposes  */
     CommandRead commandRead;
 public:
     DroneFileRun();

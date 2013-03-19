@@ -29,8 +29,8 @@ namespace droneSimulator
 
         /*  Interface functions  */
         std::string getState();                         /*  currentState accessor  */
-        void changeState( std::string );                /*  Drone changes state of drone  */
-        void processCommand( std::string );             /*  Processes command and calls changeState if new state is needed  */
+        void changeState(std::string);                /*  Drone changes state of drone  */
+        void processCommand(std::string);             /*  Processes command and calls changeState if new state is needed  */
         void flyDrone();                                /*  Drone flight function will run in loop until drone enters EmergencyLandingState  */
     };
 } /* namespace droneSimulator */

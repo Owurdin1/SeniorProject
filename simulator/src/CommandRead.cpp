@@ -12,8 +12,7 @@ namespace droneSimulator
 
     /*
      * constructor for CommandRead, this is
-     * a default constructor. It does not do anything
-     * at the moment.
+     * a default constructor.
      */
     CommandRead::CommandRead()
     {
@@ -27,7 +26,7 @@ namespace droneSimulator
     {
         const char* file;
         file = getFileName().c_str();
-        droneFlightSequence.open( file );
+        droneFlightSequence.open(file);
 
         std::cout << "file name opening = " << file << std::endl;
         return droneFlightSequence.is_open();
@@ -42,11 +41,11 @@ namespace droneSimulator
         std::string newCommand;
         bool commandString = false;
 
-        while ( !commandString )
+        while (!commandString)
         {
             std::getline( droneFlightSequence, newCommand );
             name = newCommand;
-            if ( name.length() > MINIMUM_COMMAND_SIZE )
+            if (name.length() > MINIMUM_COMMAND_SIZE)
             {
                 /*
                  * command string is a boolean trigger

@@ -10,16 +10,26 @@
 namespace droneSimulator
 {
 
+    /*
+     * Accessor for fileName variable
+     */
     DroneFileRun::DroneFileRun()
     {
         fileName = FILENAME;
     }
 
+    /*
+     * Destructor for DroneFileRun
+     */
     DroneFileRun::~DroneFileRun()
     {
 
     }
 
+    /*
+     * Retrieves command from the file and returns
+     * that value in a string
+     */
     std::string DroneFileRun::retrieveCommand()
     {
         usleep( waitTime );
@@ -31,6 +41,9 @@ namespace droneSimulator
         return nextCommand;
     }
 
+    /*
+     * Initializes the drone to run.
+     */
     void DroneFileRun::initializeDrone()
     {
         commandRead.setFileName( fileName );
