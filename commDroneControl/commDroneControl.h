@@ -21,6 +21,12 @@
 #define BAUD_RATE		9600	    /* set baud rate value to 9600 */
 #define MAX_TURNS		4	        /* maximum number of turns */
 
+// ===========================================================================
+// Test timer values
+#define MILLISECOND_60000   60000   /* 60000 millisecond variable: 60 seconds */
+// ===========================================================================
+
+
 // Enumerator for drone States
 enum droneFlightState
 {

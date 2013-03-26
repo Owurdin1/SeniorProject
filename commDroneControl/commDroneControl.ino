@@ -23,22 +23,37 @@
 */
 void initialState()
 {
-        //Serial.println("initialState keep on ground until given command to fly");
+    //Serial.println("initialState keep on ground until given command to fly");
 	//Serial.println("sending flat trim command to drone to attempt to prevent flying into walls");
-        time = millis();
+    time = millis();
 	rangeTimer = time;
 	flightTime = time;
 	keepConn = time;
 	totalTime = time;
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", 1, 1);
+    sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", 1, 1);
 
 	// Printing command structure to serial output
 	//Serial.println("initialState command string: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("FirstCommand");
+	//Serial.println("FirstCommand");
 
 	reverseTime = 0;
+
+// ============================Test Config Commands=====================================
+/*
+    sockCommand.sendf ("AT * PMODE =% d,% d \ r", seq + +, 2);
+    Sleep (100);
+    // Send command undocumented
+    sockCommand.sendf ("AT * MISC =% d,% d,% d,% d,% d \ r", seq + +, 2, 20, 2000, 3000);
+    Sleep (100);
+*/
+    sprintf(data, "AT*PCMODE=%d,%d\r", seq++, 2);
+    delay(MILLISECOND_100);
+    
+    sprintf(data, "AT*MISC=%d,%d,%d,%d,%d\r", seq++, 2, 20, 2000, 3000);
+    delay(MILLISECOND_100);
+// =====================================================================================
 
 	sprintf(data, "AT*FTRIM=%d\r", seq++);
 	aeq = seq + 1;	// Make sure that aeq stays ahead of seq for sequencing
@@ -47,58 +62,58 @@ void initialState()
 	//Serial.println("flatTrim command string: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Flattrimming");
+	//Serial.println("Flattrimming");
 
-	delay(MILLISECOND_200); //200);
+	delay(MILLISECOND_200);
 }
 
 void landingState()
 {
-        //Serial.println("landingState send land command");
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
+    //Serial.println("landingState send land command");
+    sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
 
 	// Printing command structure to serial output
 	//Serial.println("landingState command string: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Landing");
+	//Serial.println("Landing");
 }
 
 void takeOffState()
 {
-        //Serial.println("takeOffState, tell drone to take off");
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r", seq++, aeq++);
+    //Serial.println("takeOffState, tell drone to take off");
+    sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r", seq++, aeq++);
 
 	// Printing command structure to serial output
 	//Serial.println("takeOffState command string: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("TakeOff");
+	//Serial.println("TakeOff");
 }
 
 void hoverState()
 {
-        //Serial.println("hoverState, hovring with no directions");
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\r", seq++);
+    //Serial.println("hoverState, hovring with no directions");
+    sprintf(data, "AT*PCMD=%d,0,0,0,0,0\r", seq++);
 	aeq = seq + 1;
 
 	// Printing command structure to serial output
 	//Serial.println("hoverState command string: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Hovering");
+	//Serial.println("Hovering");
 }
 
 void emergencyLandState()
 {
-        //Serial.println("landingState send land command");
-        sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
+    //Serial.println("landingState send land command");
+    sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
 
 	// Printing command structure to serial output
 	//Serial.println("emergencyLandState command string: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("EmergencyLandState");
+	//Serial.println("EmergencyLandState");
 }
 
 void forwardState()
@@ -112,7 +127,7 @@ void forwardState()
 	//Serial.println("forward command string: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Forward");
+	//Serial.println("Forward");
 }
 
 void reverseState()
@@ -124,7 +139,7 @@ void reverseState()
 		reverseTime = millis();
 	}
 
-	if (millis() - reverseTime < MILLISECOND_200) //200)
+	if (millis() - reverseTime < MILLISECOND_200)
 	{
 		sprintf(data, "AT*PCMD=%d,1,0,%ld,0,0\r", seq++, reverseSpeed);
 		aeq = seq + 1;
@@ -139,7 +154,7 @@ void reverseState()
 	//Serial.println("Reverse command string, send every 30ms for 200 ms: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Reverse");
+	//Serial.println("Reverse");
 }
 
 void turnState()
@@ -151,15 +166,15 @@ void turnState()
 		turnTimer = millis();
 	}
 
-	if (millis() - turnTimer < MILLISECOND_300) // 300)
+	if (millis() - turnTimer < MILLISECOND_300)
 	{
 		sprintf(data, "AT*PCMD=%d,1,0,0,0,%ld\r", seq++, turnSpeed);
 		aeq = seq + 1;
 	}
 	else
 	{
-		turnTimer = 0;
-		turnTrigger = 0;
+		turnTimer = OFF; // 0;
+		turnTrigger = OFF; //0;
 		turnCounter++;
 	}
 
@@ -167,17 +182,17 @@ void turnState()
 	//Serial.println("Turn command string, send every 30ms for 300ms: ");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Turning");
+	//Serial.println("Turning");
 }
 
 void verticalState()
 {
-	if (verticalTimer == OFF) // 0)
+	if (verticalTimer == OFF)
 	{
 		verticalTimer = millis();
 	}
 
-	if (millis() - verticalTimer < MILLISECOND_1000) // 1000)
+	if (millis() - verticalTimer < MILLISECOND_1000)
 	{
 		switch(verticalUpDown)
 		{
@@ -206,7 +221,7 @@ void flyDown()
 	//Serial.println("flyDown command:");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Down");
+	//Serial.println("Down");
 }
 
 void flyUp()
@@ -218,7 +233,7 @@ void flyUp()
 	//Serial.println("flyUp command:");
 	//Serial.println(data);
 	//Serial.print(data);
-	Serial.println("Up");
+	//Serial.println("Up");
 }
 
 void keepConnection()
@@ -228,7 +243,7 @@ void keepConnection()
 
 	// Check for 30 milliseconds rather than 300 for keep connection,
 	// should enable smoother flight
-	if (millis() - keepConn > MILLISECOND_30) // 30)
+	if (millis() - keepConn > MILLISECOND_30)
 	{
 		  keepConn = millis();
 
@@ -271,7 +286,7 @@ void sensorCompare()
 	int rightRead = 0;
 	int verticalRead = 0;
 
-	for (i = 0; i < MAX_SENSORS; i++) // 3; i++)
+	for (i = 0; i < MAX_SENSORS; i++)
 	{
 		if (leftRead < leftSensor[i])
 		{
@@ -321,11 +336,11 @@ int goForward()
 	if (leftRange > rangeStop && rightRange > rangeStop)
 	{
 		//Serial.println("goForward returning ON!");
-		return ON; //1;
+		return ON;
 	}
 
 	//Serial.println("goForward returning OFF");
-	return OFF; //0;
+	return OFF;
 }
 
 int goVertical()
@@ -340,6 +355,7 @@ int goVertical()
 	return DOWN;
 }
 
+/*
 void stateSetter()
 {
 	switch (droneState)
@@ -354,7 +370,7 @@ void stateSetter()
 		{
 			// send take off for at least 3 seconds to be sure drone
 			// is ready to enter hover state
-			if (millis() - flightTime > MILLISECOND_3000) //3000)
+			if (millis() - flightTime > MILLISECOND_3000)
 			{
 				droneState = HOVERING;
 				flightTime = millis();
@@ -372,24 +388,24 @@ void stateSetter()
 			}
 			// If drone has gone through turn sequence
 			// more than 4 times it will change to vertical flight
-			else if (turnCounter >= MAX_TURNS && verticalTrigger == OFF) // 4 && verticalTrigger == 0)
+			else if (turnCounter >= MAX_TURNS && verticalTrigger == OFF)
 			{
 				droneState = VERTICAL;
 				verticalUpDown = goVertical();
-				verticalTrigger = ON; //1;
+				verticalTrigger = ON;
 			}
-			else if (turnTrigger == OFF && verticalTrigger == OFF) //0)
+			else if (turnTrigger == OFF && verticalTrigger == OFF)
 			{
 				/*
 				Serial.println("******* Switching to turn state *******");
 				Serial.println("Turning Variables:");
 				Serial.print("		turnTrigger = ");
 				Serial.println(turnTrigger);
-				*/
+				* /
 
 				droneState = TURN;
 				flightTime = millis();
-				turnTrigger = ON; //1;
+				turnTrigger = ON;
 			}
 
 			break;
@@ -405,14 +421,14 @@ void stateSetter()
 			{
 				//Serial.println("rangeStop has been breached, STOP the drone!!!");
 				droneState = REVERSE;
-				reverseTrigger = ON; //1;
+				reverseTrigger = ON;
 			}
 
 			break;
 		}
 		case REVERSE:
 		{
-			if (reverseTrigger == OFF) //0)
+			if (reverseTrigger == OFF)
 			{
 				droneState = HOVERING;
 			}
@@ -421,7 +437,7 @@ void stateSetter()
 		}
 		case VERTICAL:
 		{
-			if (verticalTrigger == OFF) //0)
+			if (verticalTrigger == OFF)
 			{
 				droneState = HOVERING;
 			}
@@ -439,6 +455,62 @@ void stateSetter()
 		}
 	}
 }
+*/
+
+void stateSetter()
+{
+    if (millis() - totalTime < MILLISECOND_60000)
+    {
+        switch (droneState)
+        {
+            case LANDED:
+            {
+                droneState = TAKEOFF;
+                flightTime = millis();
+                break;
+            }
+            case TAKEOFF:
+            {
+                if (millis() - flightTime > MILLISECOND_3000)
+			    {
+				    droneState = HOVERING;
+				    flightTime = millis();
+			    }
+
+			    break;
+            }
+            case HOVERING:
+            {
+                if (millis() - flightTime > MILLISECOND_30) // && turnTrigger == OFF)
+                {
+                    droneState = TURN;
+                    turnTrigger = ON;
+                    flightTime = millis();
+                }
+            }
+            case TURN:
+            {
+                if (turnTrigger == OFF)
+                {
+                    droneState = HOVERING;
+                }
+                
+                break;
+            }
+            case EMERGENCYLAND:
+            {
+                while (1)
+                {
+                    emergencyLandState();
+                }
+            }
+        }
+    }
+    else
+    {
+        droneState = EMERGENCYLAND;
+    }
+}
 
 void flyDrone()
 {
@@ -455,7 +527,7 @@ void flyDrone()
 		time = millis();
 	}
 
-	if (rangeTimer >= RANGE_TIMER_MAX) //3)
+	if (rangeTimer >= RANGE_TIMER_MAX)
 	{
 		rangeTimer = 0;
 		stateSetter();
