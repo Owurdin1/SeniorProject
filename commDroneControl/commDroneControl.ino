@@ -181,8 +181,8 @@ void turnState()
 	}
 	else
 	{
-		turnTimer = OFF; // 0;
-		turnTrigger = OFF; //0;
+		turnTimer = OFF;
+		turnTrigger = OFF;
 		turnCounter++;
 	}
 
@@ -363,7 +363,7 @@ int goVertical()
 	return DOWN;
 }
 
-/*
+
 void stateSetter()
 {
 	switch (droneState)
@@ -409,7 +409,7 @@ void stateSetter()
 				Serial.println("Turning Variables:");
 				Serial.print("		turnTrigger = ");
 				Serial.println(turnTrigger);
-				* /
+				*/
 
 				droneState = TURN;
 				flightTime = millis();
@@ -463,8 +463,8 @@ void stateSetter()
 		}
 	}
 }
-*/
 
+/*
 void stateSetter()
 {
     if (millis() - totalTime < MILLISECOND_60000)
@@ -519,6 +519,7 @@ void stateSetter()
         droneState = EMERGENCYLAND;
     }
 }
+*/
 
 void flyDrone()
 {
