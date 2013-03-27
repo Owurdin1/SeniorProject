@@ -83,7 +83,7 @@ unsigned char security_passphrase_len;
 //---------------------------------------------------------------------------
 
 //===========================================================================
-int testing = 1; 		// Testing variable will not init WiFi if this is on
+int testing = 0; 		// Testing variable will not init WiFi if this is on
 //===========================================================================
 
 // Variables for drone states

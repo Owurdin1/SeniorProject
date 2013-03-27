@@ -33,8 +33,8 @@ void initialState()
     sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", 1, 1);
 
 	// Printing command structure to serial output
-	//Serial.println("initialState command string: ");
-	//Serial.println(data);
+	Serial.println("initialState command string: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("FirstCommand");
 
@@ -49,9 +49,17 @@ void initialState()
     Sleep (100);
 */
     sprintf(data, "AT*PCMODE=%d,%d\r", seq++, 2);
+    
+    Serial.println("Test new command one:");
+    Serial.println(data);
+    
     delay(MILLISECOND_100);
     
     sprintf(data, "AT*MISC=%d,%d,%d,%d,%d\r", seq++, 2, 20, 2000, 3000);
+    
+    Serial.println("Test new command two:");
+    Serial.println(data);
+    
     delay(MILLISECOND_100);
 // =====================================================================================
 
@@ -59,8 +67,8 @@ void initialState()
 	aeq = seq + 1;	// Make sure that aeq stays ahead of seq for sequencing
 
 	// Printing command structure to serial output
-	//Serial.println("flatTrim command string: ");
-	//Serial.println(data);
+	Serial.println("flatTrim command string: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Flattrimming");
 
@@ -73,8 +81,8 @@ void landingState()
     sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
 
 	// Printing command structure to serial output
-	//Serial.println("landingState command string: ");
-	//Serial.println(data);
+	Serial.println("landingState command string: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Landing");
 }
@@ -85,8 +93,8 @@ void takeOffState()
     sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290718208\r", seq++, aeq++);
 
 	// Printing command structure to serial output
-	//Serial.println("takeOffState command string: ");
-	//Serial.println(data);
+	Serial.println("takeOffState command string: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("TakeOff");
 }
@@ -98,8 +106,8 @@ void hoverState()
 	aeq = seq + 1;
 
 	// Printing command structure to serial output
-	//Serial.println("hoverState command string: ");
-	//Serial.println(data);
+	Serial.println("hoverState command string: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Hovering");
 }
@@ -110,8 +118,8 @@ void emergencyLandState()
     sprintf(data, "AT*PCMD=%d,0,0,0,0,0\rAT*REF=%d,290717696\r", seq++, aeq++);
 
 	// Printing command structure to serial output
-	//Serial.println("emergencyLandState command string: ");
-	//Serial.println(data);
+	Serial.println("emergencyLandState command string: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("EmergencyLandState");
 }
@@ -124,8 +132,8 @@ void forwardState()
 	aeq = seq + 1;
 
 	// Printing command structure to serial output
-	//Serial.println("forward command string: ");
-	//Serial.println(data);
+	Serial.println("forward command string: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Forward");
 }
@@ -151,8 +159,8 @@ void reverseState()
 	}
 
 	// Printing command structure to serial output
-	//Serial.println("Reverse command string, send every 30ms for 200 ms: ");
-	//Serial.println(data);
+	Serial.println("Reverse command string, send every 30ms for 200 ms: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Reverse");
 }
@@ -179,8 +187,8 @@ void turnState()
 	}
 
 	// Printing command structure to serial output
-	//Serial.println("Turn command string, send every 30ms for 300ms: ");
-	//Serial.println(data);
+	Serial.println("Turn command string, send every 30ms for 300ms: ");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Turning");
 }
@@ -218,8 +226,8 @@ void flyDown()
 	aeq = seq + 1;
 
 	//Printing command structure to serial output
-	//Serial.println("flyDown command:");
-	//Serial.println(data);
+	Serial.println("flyDown command:");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Down");
 }
@@ -230,8 +238,8 @@ void flyUp()
 	aeq = seq + 1;
 
 	//Printing command structure to serial output
-	//Serial.println("flyUp command:");
-	//Serial.println(data);
+	Serial.println("flyUp command:");
+	Serial.println(data);
 	//Serial.print(data);
 	//Serial.println("Up");
 }
@@ -481,7 +489,7 @@ void stateSetter()
             }
             case HOVERING:
             {
-                if (millis() - flightTime > MILLISECOND_30) // && turnTrigger == OFF)
+                if (millis() - flightTime > MILLISECOND_30)
                 {
                     droneState = TURN;
                     turnTrigger = ON;
