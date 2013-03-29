@@ -1,0 +1,28 @@
+         / / Set the configuration IDs
+sendf ("AT*CONFIG_IDS =%d, \"%s\", \"%s\", \"%s\"\r", seq++, ARDRONE_SESSION_ID, ARDRONE_PROFILE_ID, ARDRONE_APPLOCATION_ID);
+sendf ("AT*CONFIG =%d, \"custom: session_id\", \"% s\"\r", seq++, ARDRONE_SESSION_ID);
+Sleep (100);
+sendf ("AT*CONFIG_IDS =%d, \"%s\", \"%s\", \"%s\"\r", seq++, ARDRONE_SESSION_ID, ARDRONE_PROFILE_ID, ARDRONE_APPLOCATION_ID);
+sendf ("AT*CONFIG =% d, \"custom: profile_id \", \"%s \"\r", seq++, ARDRONE_PROFILE_ID);
+Sleep (100);
+
+sendf ("AT * CONFIG_IDS =%d, \"%s\", \"%s\", \"%s \"\r", seq++, ARDRONE_SESSION_ID, ARDRONE_PROFILE_ID, ARDRONE_APPLOCATION_ID);
+
+sendf ("AT * CONFIG =%d, \"custom: application_id\", \"%s \"\r", seq++, ARDRONE_APPLOCATION_ID);
+Sleep (100);
+
+
+
+#define DRONE_SESSION_ID    11001
+#define DRONE_PROFILE_ID    11010
+#define DRONE_APP_ID        11011
+
+sprintf(data, "AT*CONFIG_IDS= %d, \"%s\", \"%s\", \"%s\"\r", seq++, DRONE_SESSION_ID, DRONE_PROFILE_ID, DRONE_APP_ID);
+sprintf(data, "AT*CONFIG=%d, \"custon: sesion_id\", \"%s\"\r", seq++, DRONE_SESSION_ID);
+delay(MILLISECOND_100);
+sprintf(data, "AT*CONFIG_IDS=%d, \"%s\", \"%s\", \"%s\"\r", seq++, DRONE_SESSION_ID, DRONE_PROFILE_ID, DRONE_APP_ID);
+sprintf(data, "AT*CONFIG=%d, \"custom: profile_id \", \"%s\"\r", seq++, DRONE_PROFILE_ID);
+delay(MILLISECOND_100);
+sprintf(data, "AT*CONFIG_IDS=%d, \"%s\", \"%s\", \"%s\"\r", seq++, DRONE_SESSION_ID, DRONE_PROFILE_ID, DRONE_APP_ID);
+sprintf(data, "AT*CONFIG=%d, \"custom: application_id\", \"%s\"\r", seq++, DRONE_APP_ID);
+delay(MILLISECOND_100);

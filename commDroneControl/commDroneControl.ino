@@ -73,6 +73,32 @@ void initialState()
 	//Serial.println("Flattrimming");
 
 	delay(MILLISECOND_200);
+
+// ============================Test Config Commands=====================================
+    /*
+    *    Send config ID's to the drone
+    *    send session id to the drone
+    */
+    sprintf(data, "AT*CONFIG_IDS= %d, \"%s\", \"%s\", \"%s\"\r", seq++, DRONE_SESSION_ID, DRONE_PROFILE_ID, DRONE_APP_ID);
+    sprintf(data, "AT*CONFIG=%d, \"custom: sesion_id\", \"%s\"\r", seq++, DRONE_SESSION_ID);
+    delay(MILLISECOND_100);
+    
+    /*
+    *    Send config ID's to the drone
+    *    send profile id to the drone
+    */
+    sprintf(data, "AT*CONFIG_IDS=%d, \"%s\", \"%s\", \"%s\"\r", seq++, DRONE_SESSION_ID, DRONE_PROFILE_ID, DRONE_APP_ID);
+    sprintf(data, "AT*CONFIG=%d, \"custom: profile_id \", \"%s\"\r", seq++, DRONE_PROFILE_ID);
+    delay(MILLISECOND_100);
+    
+    /*
+    *    Send config ID's to the drone
+    *    send application id to the drone
+    */
+    sprintf(data, "AT*CONFIG_IDS=%d, \"%s\", \"%s\", \"%s\"\r", seq++, DRONE_SESSION_ID, DRONE_PROFILE_ID, DRONE_APP_ID);
+    sprintf(data, "AT*CONFIG=%d, \"custom: application_id\", \"%s\"\r", seq++, DRONE_APP_ID);
+    delay(MILLISECOND_100);
+// =====================================================================================
 }
 
 void landingState()
