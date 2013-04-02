@@ -18,6 +18,7 @@
 #define MILLISECOND_300		300	    /* 300 millisecond variable */
 #define MILLISECOND_1000	1000	/* 1000 millisecond variable */
 #define MILLISECOND_3000	3000	/* 3000 millisecond variable */
+#define MILLISECOND_120000  120000  /* 2 minutes, 120000 millisecond variable */
 #define BAUD_RATE		9600	    /* set baud rate value to 9600 */
 #define MAX_TURNS		4	        /* maximum number of turns */
 #define DRONE_SESSION_ID    11001   /* Drone session id */

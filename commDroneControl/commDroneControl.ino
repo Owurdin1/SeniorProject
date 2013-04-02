@@ -41,13 +41,6 @@ void initialState()
 	reverseTime = 0;
 
 // ============================Test Config Commands=====================================
-/*
-    sockCommand.sendf ("AT * PMODE =% d,% d \ r", seq + +, 2);
-    Sleep (100);
-    // Send command undocumented
-    sockCommand.sendf ("AT * MISC =% d,% d,% d,% d,% d \ r", seq + +, 2, 20, 2000, 3000);
-    Sleep (100);
-*/
     sprintf(data, "AT*PCMODE=%d,%d\r", seq++, 2);
     
     Serial.println("Test new command one:");
@@ -75,6 +68,7 @@ void initialState()
 	delay(MILLISECOND_200);
 
 // ============================Test Config Commands=====================================
+
     /*
     *    Send config ID's to the drone
     *    send session id to the drone
@@ -392,102 +386,109 @@ int goVertical()
 
 void stateSetter()
 {
-	switch (droneState)
-	{
-		case LANDED:
-		{
-			droneState = TAKEOFF;
-			flightTime = millis();
-			break;
-		}
-		case TAKEOFF:
-		{
-			// send take off for at least 3 seconds to be sure drone
-			// is ready to enter hover state
-			if (millis() - flightTime > MILLISECOND_3000)
-			{
-				droneState = HOVERING;
-				flightTime = millis();
-			}
+    if (millis() - totalTime < MILLISECOND_120000)
+    {
+	    switch (droneState)
+	    {
+		    case LANDED:
+		    {
+			    droneState = TAKEOFF;
+			    flightTime = millis();
+			    break;
+		    }
+		    case TAKEOFF:
+		    {
+			    // send take off for at least 3 seconds to be sure drone
+			    // is ready to enter hover state
+			    if (millis() - flightTime > MILLISECOND_3000)
+			    {
+				    droneState = HOVERING;
+				    flightTime = millis();
+			    }
 
-			break;
-		}
-		case HOVERING:
-		{
-			// Make sure forward range is clear
-			if (goForward())
-			{
-				droneState = FORWARDFLIGHT;
-				flightTime = millis();
-			}
-			// If drone has gone through turn sequence
-			// more than 4 times it will change to vertical flight
-			else if (turnCounter >= MAX_TURNS && verticalTrigger == OFF)
-			{
-				droneState = VERTICAL;
-				verticalUpDown = goVertical();
-				verticalTrigger = ON;
-			}
-			else if (turnTrigger == OFF && verticalTrigger == OFF)
-			{
-				/*
-				Serial.println("******* Switching to turn state *******");
-				Serial.println("Turning Variables:");
-				Serial.print("		turnTrigger = ");
-				Serial.println(turnTrigger);
-				*/
+			    break;
+		    }
+		    case HOVERING:
+		    {
+			    // Make sure forward range is clear
+			    if (goForward())
+			    {
+				    droneState = FORWARDFLIGHT;
+				    flightTime = millis();
+			    }
+			    // If drone has gone through turn sequence
+			    // more than 4 times it will change to vertical flight
+			    else if (turnCounter >= MAX_TURNS && verticalTrigger == OFF)
+			    {
+				    droneState = VERTICAL;
+				    verticalUpDown = goVertical();
+				    verticalTrigger = ON;
+			    }
+			    else if (turnTrigger == OFF && verticalTrigger == OFF)
+			    {
+				    /*
+				    Serial.println("******* Switching to turn state *******");
+				    Serial.println("Turning Variables:");
+				    Serial.print("		turnTrigger = ");
+				    Serial.println(turnTrigger);
+				    */
 
-				droneState = TURN;
-				flightTime = millis();
-				turnTrigger = ON;
-			}
+				    droneState = TURN;
+				    flightTime = millis();
+				    turnTrigger = ON;
+			    }
 
-			break;
-		}
-		case FORWARDFLIGHT:
-		{
-			if (goForward())
-			{
-				//Serial.println("Flying forward!!!!");
-				droneState = FORWARDFLIGHT;
-			}
-			else
-			{
-				//Serial.println("rangeStop has been breached, STOP the drone!!!");
-				droneState = REVERSE;
-				reverseTrigger = ON;
-			}
+			    break;
+		    }
+		    case FORWARDFLIGHT:
+		    {
+			    if (goForward())
+			    {
+				    //Serial.println("Flying forward!!!!");
+				    droneState = FORWARDFLIGHT;
+			    }
+			    else
+			    {
+				    //Serial.println("rangeStop has been breached, STOP the drone!!!");
+				    droneState = REVERSE;
+				    reverseTrigger = ON;
+			    }
 
-			break;
-		}
-		case REVERSE:
-		{
-			if (reverseTrigger == OFF)
-			{
-				droneState = HOVERING;
-			}
+			    break;
+		    }
+		    case REVERSE:
+		    {
+			    if (reverseTrigger == OFF)
+			    {
+				    droneState = HOVERING;
+			    }
 
-			break;
-		}
-		case VERTICAL:
-		{
-			if (verticalTrigger == OFF)
-			{
-				droneState = HOVERING;
-			}
+			    break;
+		    }
+		    case VERTICAL:
+		    {
+			    if (verticalTrigger == OFF)
+			    {
+				    droneState = HOVERING;
+			    }
 
-			break;
-		}
-		case TURN:
-		{
-			if (turnTrigger == OFF)
-			{
-				droneState = HOVERING;
-			}
+			    break;
+		    }
+		    case TURN:
+		    {
+			    if (turnTrigger == OFF)
+			    {
+				    droneState = HOVERING;
+			    }
 
-			break;
-		}
-	}
+			    break;
+		    }
+	    }
+    }
+    else
+    {
+        droneState = EMERGENCYLAND;
+    }
 }
 
 /*
