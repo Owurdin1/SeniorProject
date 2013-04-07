@@ -8,8 +8,8 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
-//#define FILENAME "src/droneFlightSequence.txt"
-#define FILENAME "../src/droneFlightSequence.txt"
+#define FILENAME "src/droneFlightSequence.txt"
+//#define FILENAME "../src/droneFlightSequence.txt"
 
 #include "interfaces/IDrone.h"
 #include "CommandRead.h"
