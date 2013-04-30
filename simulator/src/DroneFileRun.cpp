@@ -44,17 +44,19 @@ namespace droneSimulator
     /*
      * Initializes the drone to run.
      */
-    void DroneFileRun::initializeDrone()
+    int DroneFileRun::initializeDrone()
     {
         commandRead.setFileName( fileName );
 
         if ( commandRead.openPort() )
         {
             std::cout << "File has been opened!" << std::endl;
+            return 1;
         }
         else
         {
             std::cout << "File was not opened!" << std::endl;
+            return 0;
         }
     }
 

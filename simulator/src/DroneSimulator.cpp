@@ -14,7 +14,10 @@ using namespace std;
 int main()
 {
     droneSimulator::DroneFileRun dfRun;
-    dfRun.initializeDrone();
+    if (dfRun.initializeDrone() == 0)
+    {
+        return 1;
+    }
     dfRun.flyDrone();
 
 	return 0;

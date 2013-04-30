@@ -23,7 +23,7 @@ namespace droneSimulator
 
     public:
         /*  Virtual functions  */
-        virtual void initializeDrone() = 0;             /*  Initialization connects to command module and asks for commands  */
+        virtual int initializeDrone() = 0;             /*  Initialization connects to command module and asks for commands  */
         virtual std::string retrieveCommand() = 0;      /*  Retrieves command from the command interface and returns as a string  */
         virtual ~IDrone() {}                            /*  Virtual Destructor  */
 

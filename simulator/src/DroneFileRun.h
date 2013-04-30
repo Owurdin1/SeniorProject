@@ -29,7 +29,7 @@ public:
     ~DroneFileRun();
 
     // Virtual functions
-    void initializeDrone();                         /*  Initializes the drone connecting to the command interface.  */
+    int initializeDrone();                         /*  Initializes the drone connecting to the command interface.  */
     std::string retrieveCommand();                  /*  retrieves command from command interface  */
 };
 
